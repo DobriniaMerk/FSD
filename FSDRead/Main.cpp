@@ -8,6 +8,8 @@
 #include <windows.h>
 #include <string.h>
 
+//  https://github.com/LunaMultiplayer/CachedQuickLz
+
 sf::Image ReadFile(std::string);
 std::wstring getFile();
 

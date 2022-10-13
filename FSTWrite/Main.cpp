@@ -47,7 +47,7 @@ int main()
             //  DELETE THIS
             if (event.type == sf::Event::KeyPressed)
             {
-                img.saveToFile("out.png");
+                img.saveToFile("out.jpg");
                 window.close();
             }
             //  DELETE THIS
