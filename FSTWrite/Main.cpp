@@ -1,8 +1,13 @@
 ﻿#include "Utils.cpp"
 #include <iostream>
-//#include <zstd.h>  why it is not importing????
 #include <windows.h>
 #include <string.h>
+
+// zpaq
+#include "libzpaq.h"
+#include <stdio.h>
+#include <stdlib.h>
+// zpaq
 
 std::wstring getFile();
 std::wstring getFolder();
