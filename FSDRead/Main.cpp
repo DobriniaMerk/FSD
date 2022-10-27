@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <string.h>
 
-
 sf::Image ReadFile(std::string);
 std::wstring getFile();
 

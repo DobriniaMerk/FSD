@@ -12,6 +12,49 @@
 std::wstring getFile();
 std::wstring getFolder();
 
+
+/*#include "libzpaq.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <iostream>
+#include <fstream>
+
+std::ifstream file("file.txt", std::ios::in | std::ios::binary);
+
+
+void libzpaq::error(const char* msg)  // print message and exit
+{
+	fprintf(stderr, "Oops: %s\n", msg);
+	exit(1);
+}
+
+class In : public libzpaq::Reader
+{
+public:
+	int get() {
+		unsigned char t;
+		if (!file.eof())
+		{
+			file.read((char*)&t, 1);
+			return t;
+		}
+
+		return -1;
+	}  // returns byte 0..255 or -1 at EOF
+} in;
+
+class Out : public libzpaq::Writer
+{
+public:
+	void put(int c) { std::cout << c; }  // writes 1 byte 0..255
+} out;
+
+int main()
+{
+	libzpaq::compress(&in, &out, "5");  // "0".."5" = faster..better
+}*/
+
+
 int main()
 {
     sf::String filename = getFile();

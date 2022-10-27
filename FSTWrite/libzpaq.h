@@ -1,3 +1,4 @@
+
 /* libzpaq.h - LIBZPAQ Version 7.12 header - Apr. 19, 2016.
 
   This software is provided as-is, with no warranty.
