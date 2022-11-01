@@ -13,13 +13,10 @@ std::wstring getFile();
 std::wstring getFolder();
 
 
-/*#include "libzpaq.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
-#include <fstream>
-
-std::ifstream file("file.txt", std::ios::in | std::ios::binary);
+std::ifstream filein;
+std::ofstream fileout;
+sf::String savefolder;  // folder to save final image in; only ASCII symbols
+char tempfile[100];
 
 
 void libzpaq::error(const char* msg)  // print message and exit
@@ -33,9 +30,9 @@ class In : public libzpaq::Reader
 public:
 	int get() {
 		unsigned char t;
-		if (!file.eof())
+		if (!filein.eof())
 		{
-			file.read((char*)&t, 1);
+			filein.read((char*)&t, 1);
 			return t;
 		}
 
@@ -46,32 +43,30 @@ public:
 class Out : public libzpaq::Writer
 {
 public:
-	void put(int c) { std::cout << c; }  // writes 1 byte 0..255
+	void put(int c) {
+        unsigned char t;
+        fileout.write((char*)&t, 1);
+    }  // writes 1 byte 0..255
 } out;
 
-int main()
-{
-	libzpaq::compress(&in, &out, "5");  // "0".."5" = faster..better
-}*/
-
 
 int main()
 {
-    sf::String filename = getFile();
-    
+    sf::String filename = getFile();   // file to process; only ASCII symbols in path
+    filein = std::ifstream(tempfile, std::ios::in | std::ios::binary);
+    tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
+
 
     sf::Image img;
-    img.loadFromFile(filename.toAnsiString());
+    img.loadFromFile(filename.toAnsiString()); // load it
+
 
     int colornum;
     std::cout << "Input number of colors (must be a power of 2 and no more than 256): ";
     std::cin >> colornum;
 
     sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y), "Final Image");
-
-
     std::vector<sf::Color> colors = ImageDithering::Utils::Dither(img, colornum);
-
     sf::Texture t;
     t.loadFromImage(img);
     sf::Sprite s;
@@ -87,18 +82,15 @@ int main()
 
             if (event.type == sf::Event::MouseButtonPressed)
             {
-                sf::String savefolder = getFolder();
-                ImageDithering::Utils::SaveToFile(img, colors, savefolder.toAnsiString());
-                window.close();
-            }
+                savefolder = getFolder();
+                fileout = std::ofstream(savefolder.toAnsiString(), std::ios::out | std::ios::binary);
+                std::cout << "temporary file name: " << tempfile << '\n';
 
-            //  DELETE THIS
-            if (event.type == sf::Event::KeyPressed)
-            {
-                img.saveToFile("out.jpg");
+                ImageDithering::Utils::SaveToFile(img, colors, tempfile);
+                libzpaq::compress(&in, &out, "1");  // "0".."5" = faster..better
+
                 window.close();
             }
-            //  DELETE THIS
         }
 
         window.clear();
@@ -160,6 +152,15 @@ std::wstring getFolder()
     {
         std::wstring ws(ofn.lpstrFile);
         std::wcout << ws << std::endl;
+
+        if (ws[ws.size() - 4] != '.')  // if saving is broken, it is because of this block
+        {
+            ws.push_back('.');
+            ws.push_back('f');
+            ws.push_back('s');
+            ws.push_back('d');
+        }
+
         return ws;
     }
     return empty;

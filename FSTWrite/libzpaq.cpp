@@ -22,6 +22,8 @@ conforming to the ZPAQ level 2 standard. See http://mattmahoney.net/zpaq/
 See libzpaq.h for additional documentation.
 */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "libzpaq.h"
 #include <string.h>
 #include <string>

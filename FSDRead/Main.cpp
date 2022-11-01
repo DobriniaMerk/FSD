@@ -8,12 +8,15 @@
 #include <windows.h>
 #include <string.h>
 
+#define _CRT_SECURE_NO_WARNINGS
+
+
 sf::Image ReadFile(std::string);
 std::wstring getFile();
 
 int main(int argc, char** argv)
 {
-    sf::String filename;
+    /*sf::String filename;
 
     for (int i = 0; i < argc; i++)
     {
@@ -50,7 +53,11 @@ int main(int argc, char** argv)
         window.clear();
         window.draw(s);
         window.display();
-    }
+    }*/
+
+    char name1[100];
+    tmpnam_s(name1, 100);
+    std::cout << "temporary file name: " << name1 << '\n';
 
     return 0;
 }

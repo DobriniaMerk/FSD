@@ -5,9 +5,6 @@
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-#include "zstd.h"
-#include "common.h"
-
 #define bp char BREAKPOINT = '1'
 
 namespace ImageDithering
