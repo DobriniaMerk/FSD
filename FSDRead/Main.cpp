@@ -8,7 +8,51 @@
 #include <windows.h>
 #include <string.h>
 
+// zpaq
+#include "libzpaq.h"
+#include <stdio.h>
+#include <stdlib.h>
+// zpaq
+
 #define _CRT_SECURE_NO_WARNINGS
+
+std::ifstream filein;
+std::ofstream fileout;
+
+void libzpaq::error(const char* msg)  // print message and exit
+{
+    fprintf(stderr, "Oops: %s\n", msg);
+    exit(1);
+}
+
+class In : public libzpaq::Reader
+{
+public:
+    int offset = 0;
+    int get() {
+        unsigned char t;
+        if (!filein.eof())
+        {
+            filein.seekg(offset++);
+            filein.read((char*)&t, 1);
+            std::cout << filein.tellg() << "\n";
+            std::cout << "Read: " << (int)t << "\n";
+            return t;
+        }
+
+        return -1;
+    }  // returns byte 0..255 or -1 at EOF
+} in;
+
+class Out : public libzpaq::Writer
+{
+public:
+    void put(int c) {
+        unsigned char t = c;
+        fileout.write((char*)&t, 1);
+        std::cout << "Written: " << (int)t << "\n";
+    }  // writes 1 byte 0..255
+} out;
 
 
 sf::Image ReadFile(std::string);
@@ -16,7 +60,7 @@ std::wstring getFile();
 
 int main(int argc, char** argv)
 {
-    /*sf::String filename;
+    sf::String filename;
 
     for (int i = 0; i < argc; i++)
     {
@@ -53,11 +97,7 @@ int main(int argc, char** argv)
         window.clear();
         window.draw(s);
         window.display();
-    }*/
-
-    char name1[100];
-    tmpnam_s(name1, 100);
-    std::cout << "temporary file name: " << name1 << '\n';
+    }
 
     return 0;
 }
