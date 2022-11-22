@@ -16,6 +16,11 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
+sf::Image ReadFile(std::string);
+std::wstring getFile();
+char tempfile[100];
+
+
 std::ifstream filein;
 std::ofstream fileout;
 
@@ -55,17 +60,13 @@ public:
 } out;
 
 
-sf::Image ReadFile(std::string);
-std::wstring getFile();
-
 int main(int argc, char** argv)
 {
     sf::String filename;
+    tmpnam_s(tempfile, 100);
 
     for (int i = 0; i < argc; i++)
-    {
         std::cout << argv[i];
-    }
 
     if (argc > 1)
     {
@@ -75,8 +76,12 @@ int main(int argc, char** argv)
     else
         filename = getFile();
     
+    filein = std::ifstream(filename.toAnsiString(), std::ios::in | std::ios::binary);
+    fileout = std::ofstream(tempfile, std::ios::out | std::ios::binary | std::ios::trunc);
 
-    sf::Image img = ReadFile(filename.toAnsiString());
+    libzpaq::decompress(&in, &out);
+
+    sf::Image img = ReadFile(tempfile);
 
     sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y), "FSD Reader");
 
@@ -105,7 +110,7 @@ int main(int argc, char** argv)
 sf::Image ReadFile(std::string filename = "out.fsd")
 {
     sf::Image img;
-    std::ifstream file(filename, std::ios::out | std::ios::binary);
+    std::ifstream file(filename, std::ios::in | std::ios::binary);
     unsigned int x, y;
     unsigned char colornum;
 
