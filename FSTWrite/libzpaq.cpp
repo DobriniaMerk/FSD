@@ -3017,8 +3017,7 @@ void compress(Reader* in, Writer* out, const char* method,
     if (method[2]>='0' && method[2]<='9') bs=bs*10+method[2]-'0';
     if (bs>11) bs=11;
   }
-  //bs=(0x100000<<bs)-4096;
-  bs = 8192;
+  bs=(0x100000<<bs)-4096;
   // Compress in blocks
   StringBuffer sb(bs);
   sb.write(0, bs);

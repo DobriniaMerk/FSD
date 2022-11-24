@@ -309,7 +309,7 @@ namespace ImageDithering
 
                 unsigned int x, y;
                 unsigned char code;
-                unsigned char maxrow = 252;
+                unsigned char maxrow = 253;
 
                 int counter = 0;
 

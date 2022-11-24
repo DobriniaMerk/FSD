@@ -35,8 +35,6 @@ public:
 		{
             filein.seekg(offset++);
 			filein.read((char*)&t, 1);
-            std::cout << filein.tellg() << "\n";
-            std::cout << "Read: " << (int)t << "\n";
 			return t;
 		}
 
@@ -50,7 +48,6 @@ public:
 	void put(int c) {
         unsigned char t = c;
         fileout.write((char*)&t, 1);
-        std::cout << "Written: " << (int)t << "\n";
     }  // writes 1 byte 0..255
 } out;
 
@@ -88,14 +85,14 @@ int main()
                 savefolder = getFolder();
                 std::cout << "temporary file name: " << tempfile << "\n";
 
-                ImageDithering::Utils::SaveToFile(img, colors, tempfile);
-
                 std::cout << "savefolder: " << savefolder.toAnsiString() << "\n";
+
+                ImageDithering::Utils::SaveToFile(img, colors, tempfile);
 
                 fileout = std::ofstream(savefolder.toAnsiString(), std::ios::out | std::ios::binary | std::ios::trunc);
                 filein = std::ifstream(tempfile, std::ios::in | std::ios::binary);
 
-                libzpaq::compress(&in, &out, "1");  // "0".."5" = faster..better
+                libzpaq::compress(&in, &out, "53,180,0");  // "0".."5" = faster..better
 
                 window.close();
             }
