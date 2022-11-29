@@ -240,8 +240,28 @@ namespace ImageDithering
             return ret;
         }
 
+        static sf::Image AddDebug(sf::Image &image, std::vector<sf::Color> colors)
+        {
+            sf::Image img;
+            img.create(image.getSize().x, image.getSize().y*1.2, sf::Color(255, 0, 0));
+
+            int blocksize = img.getSize().x / colors.size();
+
+            for (int i = 0; i < img.getSize().x * img.getSize().y; i++)
+            {
+                int x = i % img.getSize().x;
+                int y = i / img.getSize().x;
+
+                if (y < image.getSize().y)
+                    img.setPixel(x, y, image.getPixel(x, y));
+                else
+                    img.setPixel(x, y, colors[(x / blocksize + (y - image.getSize().y) / blocksize) % colors.size()]);
+            }
+            return img;
+        }
+
         public:
-            static std::vector<sf::Color> Dither(sf::Image& image, int colorDepth)
+            static std::vector<sf::Color> Dither(sf::Image &image, int colorDepth)
             {
                 std::vector<sf::Color> colors;
                 colors = Quantize(image, colorDepth);
@@ -270,6 +290,8 @@ namespace ImageDithering
                         }
                     }
                 }
+
+                image = AddDebug(image, colors);
 
                 return colors;
             }
@@ -309,7 +331,7 @@ namespace ImageDithering
 
                 unsigned int x, y;
                 unsigned char code;
-                unsigned char maxrow = 253;
+                unsigned char maxrow = 254;
 
                 int counter = 0;
 
@@ -322,9 +344,7 @@ namespace ImageDithering
 
                     pixelColor = img.getPixel(x, y);
                     if (pixelColor == color && rowLength < maxrow)    // if current pixel color matches color of row     // 255 is reserved
-                    {
                         rowLength++;
-                    }
                     else                                           // if not, write current row length and color to file and start new row
                     {
                         code = 0;

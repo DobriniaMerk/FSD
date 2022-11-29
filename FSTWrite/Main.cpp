@@ -65,8 +65,9 @@ int main()
     std::cout << "Input number of colors (must be a power of 2 and no more than 256): ";
     std::cin >> colornum;
 
-    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y), "Final Image");
     std::vector<sf::Color> colors = ImageDithering::Utils::Dither(img, colornum);
+
+    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y), "Final Image", sf::Style::Close);
     sf::Texture t;
     t.loadFromImage(img);
     sf::Sprite s;
