@@ -245,7 +245,7 @@ namespace ImageDithering
             sf::Image img;
             img.create(image.getSize().x, image.getSize().y*1.2, sf::Color(255, 0, 0));
 
-            int blocksize = img.getSize().x / colors.size();
+            int blocksize = 42;
 
             for (int i = 0; i < img.getSize().x * img.getSize().y; i++)
             {
@@ -343,7 +343,7 @@ namespace ImageDithering
                     y = n / size.x;
 
                     pixelColor = img.getPixel(x, y);
-                    if (pixelColor == color && rowLength < maxrow)    // if current pixel color matches color of row     // 255 is reserved
+                    if (pixelColor == color && rowLength <= maxrow)    // if current pixel color matches color of row     // 255 is reserved
                         rowLength++;
                     else                                           // if not, write current row length and color to file and start new row
                     {

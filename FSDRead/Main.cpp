@@ -85,10 +85,20 @@ int main(int argc, char** argv)
 
     sf::Image img = ReadFile(tempfile);
 
-    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y), "FSD Reader");
+    sf::Image out_img;
+    out_img.create(img.getSize().x, img.getSize().y / 1.2, sf::Color::Red);
+    for (int i = 0; i < out_img.getSize().x * out_img.getSize().y; i++)
+    {
+        int x = i % out_img.getSize().x;
+        int y = i / out_img.getSize().x;
+
+        out_img.setPixel(x, y, img.getPixel(x, y));
+    }
+
+    sf::RenderWindow window(sf::VideoMode(out_img.getSize().x, out_img.getSize().y), "FSD Reader");
 
     sf::Texture t;
-    t.loadFromImage(img);
+    t.loadFromImage(out_img);
     sf::Sprite s;
     s.setTexture(t);
 

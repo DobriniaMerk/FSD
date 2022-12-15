@@ -51,7 +51,6 @@ public:
     }  // writes 1 byte 0..255
 } out;
 
-
 int main()
 {
     sf::String filename = getFile();   // file to process; only ASCII symbols in path
@@ -67,7 +66,7 @@ int main()
 
     std::vector<sf::Color> colors = ImageDithering::Utils::Dither(img, colornum);
 
-    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y), "Final Image", sf::Style::Close);
+    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y / 1.2), "Final Image", sf::Style::Close);
     sf::Texture t;
     t.loadFromImage(img);
     sf::Sprite s;
