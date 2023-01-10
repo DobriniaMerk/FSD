@@ -40,8 +40,6 @@ public:
         {
             filein.seekg(offset++);
             filein.read((char*)&t, 1);
-            //std::cout << filein.tellg() << "\n";
-            //std::cout << "Read: " << (int)t << "\n";
             return t;
         }
 
@@ -55,12 +53,8 @@ public:
     void put(int c) {
         unsigned char t = c;
         fileout.write((char*)&t, 1);
-        //std::cout << "Written: " << (int)t << "\n";
     }  // writes 1 byte 0..255
 } out;
-
-// 294533
-// 294232
 
 int main(int argc, char** argv)
 {
