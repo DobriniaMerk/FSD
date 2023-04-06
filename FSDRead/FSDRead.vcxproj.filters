@@ -24,9 +24,15 @@
     <ClCompile Include="libzpaq.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Compress.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="libzpaq.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="Compress.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

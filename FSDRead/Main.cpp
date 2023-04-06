@@ -1,6 +1,5 @@
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
+#include <SDL.h>
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -18,46 +17,48 @@
 
 sf::Image ReadFile(std::string);
 std::wstring getFile();
-char tempfile[100];
+
+SDL_Window *window = NULL;
+SDL_Surface *surface = NULL;
 
 
-std::ifstream filein;
-std::ofstream fileout;
-
-void libzpaq::error(const char* msg)  // print message and exit
+/// <summary>
+/// Initialize window
+/// </summary>
+/// <param name="w">Window width</param>
+/// <param name="h">Window height</param>
+/// <returns></returns>
+int InitWindow(int w, int h)
 {
-    fprintf(stderr, "Oops: %s\n", msg);
-    exit(1);
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+    {
+        std::cout << "Failed to initialize SDL";
+        return 1;
+    }
+
+    window = SDL_CreateWindow("FSD Reader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowx, windowy, SDL_WINDOW_SHOWN);
+
+    if (window == NULL)
+    {
+        std::cout << "Failed to create window";
+        return 1;
+    }
+
+    surface = SDL_GetWindowSurface(window);
+
+    return 0;
 }
 
-class In : public libzpaq::Reader
+int Quit()
 {
-public:
-    int offset = 0;
-    int get() {
-        unsigned char t;
-        if (!filein.eof())
-        {
-            filein.seekg(offset++);
-            filein.read((char*)&t, 1);
-            return t;
-        }
-
-        return -1;
-    }  // returns byte 0..255 or -1 at EOF
-} in;
-
-class Out : public libzpaq::Writer
-{
-public:
-    void put(int c) {
-        unsigned char t = c;
-        fileout.write((char*)&t, 1);
-    }  // writes 1 byte 0..255
-} out;
+    SDL_DestroyWindow(window);
+    SDL_Quit();
+}
 
 int main(int argc, char** argv)
 {
+    /* image decompression
+    *  handle later
     sf::String filename;
     tmpnam_s(tempfile, 100);
 
@@ -88,8 +89,17 @@ int main(int argc, char** argv)
 
         out_img.setPixel(x, y, img.getPixel(x, y));
     }
+    */
+    
+    int windowx = 800, windowy = 600;
+    
+    if (InitWindow(windowx, windowy))
+    {
+        std::cout << "Failed to initialize window";
+        return 1;
+    }
 
-    sf::RenderWindow window(sf::VideoMode(out_img.getSize().x, out_img.getSize().y), "FSD Reader");
+    SDL_UpdateWindowSurface(window); // after all drawing is done
 
     sf::Texture t;
     t.loadFromImage(out_img);
@@ -109,6 +119,8 @@ int main(int argc, char** argv)
         window.draw(s);
         window.display();
     }
+
+    Quit();
 
     return 0;
 }
