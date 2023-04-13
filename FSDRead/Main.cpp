@@ -57,6 +57,8 @@ int Quit()
 
 int main(int argc, char** argv)
 {
+    std::wstring str;
+
     /* image decompression
     *  handle later
     sf::String filename;
@@ -101,88 +103,9 @@ int main(int argc, char** argv)
 
     SDL_UpdateWindowSurface(window); // after all drawing is done
 
-    sf::Texture t;
-    t.loadFromImage(out_img);
-    sf::Sprite s;
-    s.setTexture(t);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(s);
-        window.display();
-    }
-
     Quit();
 
     return 0;
-}
-
-sf::Image ReadFile(std::string filename = "out.fsd")
-{
-    sf::Image img;
-    std::ifstream file(filename, std::ios::in | std::ios::binary);
-    unsigned int x, y;
-    unsigned char colornum;
-
-
-    file.read((char*)&x, sizeof(unsigned int));
-    file.read((char*)&y, sizeof(unsigned int));        // get image x and y size
-    file.read((char*)&colornum, sizeof(char));                // number of colors
-    img.create(x, y, sf::Color(255, 0, 0));  // filled with red for debugging
-
-    std::cout << "-------------------" << std::endl;
-    std::cout << "X: " << x << " Y: " << y << std::endl << "Number of colors: " << (int)colornum << std::endl;
-    std::cout << "-------------------" << std::endl;
-
-
-    std::vector<sf::Color> colors;
-
-    for (int i = 0; i < colornum; i++)
-    {
-        unsigned char r, g, b;
-        file.read((char*)&r, sizeof(char));
-        file.read((char*)&g, sizeof(char));
-        file.read((char*)&b, sizeof(char));
-        std::cout << (int)r << ", " << (int)g << ", " << (int)b << std::endl;
-        colors.push_back(sf::Color(r, g, b));
-    }
-
-    std::cout << "-------------------" << std::endl;
-
-    unsigned int n = 0;
-    sf::Color writeColor;
-
-    while (n < y * x)
-    {
-        if (file.eof())
-            break;
-
-        unsigned char num = 0, code = 0;
-        file.read((char*)&num, sizeof(char));
-        file.read((char*)&code, sizeof(char));
-        writeColor = colors[code];
-
-        for (int i = 0; i < num; i++)
-        {
-            img.setPixel(n % x, n / x, writeColor);
-            n++;
-        }
-
-    }
-
-    std::cout << n <<' ' << x * y;
-
-    file.close();
-
-    return img;
 }
 
 std::wstring getFile()
