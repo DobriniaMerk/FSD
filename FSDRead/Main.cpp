@@ -1,5 +1,7 @@
 #include <SDL.h>
 
+#include "Compress.cpp"
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -15,12 +17,8 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-sf::Image ReadFile(std::string);
-std::wstring getFile();
-
-SDL_Window *window = NULL;
-SDL_Surface *surface = NULL;
-
+SDL_Window* window = NULL;
+SDL_Renderer* render = NULL;
 
 /// <summary>
 /// Initialize window
@@ -30,108 +28,70 @@ SDL_Surface *surface = NULL;
 /// <returns></returns>
 int InitWindow(int w, int h)
 {
-    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
-    {
-        std::cout << "Failed to initialize SDL";
-        return 1;
-    }
+	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+	{
+		std::cout << "Failed to initialize SDL";
+		return 1;
+	}
 
-    window = SDL_CreateWindow("FSD Reader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, windowx, windowy, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("FSD Reader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
 
-    if (window == NULL)
-    {
-        std::cout << "Failed to create window";
-        return 1;
-    }
+	if (window == NULL)
+	{
+		std::cout << "Failed to create window";
+		return 1;
+	}
 
-    surface = SDL_GetWindowSurface(window);
+	render = SDL_CreateRenderer(window, -1, 0);
 
-    return 0;
-}
-
-int Quit()
-{
-    SDL_DestroyWindow(window);
-    SDL_Quit();
+	return 0;
 }
 
 int main(int argc, char** argv)
 {
-    std::wstring str;
+	std::wstring str;
 
-    /* image decompression
-    *  handle later
-    sf::String filename;
-    tmpnam_s(tempfile, 100);
+	int windowx = 800, windowy = 600;  // TODO: set based on image size
 
-    for (int i = 0; i < argc; i++)
-        std::cout << argv[i];
+	if (InitWindow(windowx, windowy))
+	{
+		std::cout << "Failed to initialize window";
+		return 1;
+	}
 
-    if (argc > 1)
-    {
-        std::string f = argv[1];
-        filename = f;
-    }
-    else
-        filename = getFile();
-    
-    filein = std::ifstream(filename.toAnsiString(), std::ios::in | std::ios::binary);
-    fileout = std::ofstream(tempfile, std::ios::out | std::ios::binary | std::ios::trunc);
+	SDL_Surface* image = Compress::getImage();
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(render, image);
 
-    libzpaq::decompress(&in, &out);
+	SDL_RenderCopy(render, texture, NULL, NULL);
+	SDL_UpdateWindowSurface(window); // after all drawing is done
 
-    sf::Image img = ReadFile(tempfile);
+	bool quit = false;
+	SDL_Event event;
+	while (!quit)
+	{
+		SDL_WaitEvent(&event);
+		switch (event.type)
+		{
+		case SDL_QUIT:
+			quit = true;
+			break;
+		case SDL_WINDOWEVENT:
+			switch (event.window.event)
+			{
+			case SDL_WINDOWEVENT_RESIZED:
+				SDL_RenderClear(render);
+				SDL_RenderCopy(render, texture, NULL, NULL);
+				SDL_UpdateWindowSurface(window); // after all drawing is done
+				break;
+			}
+		}
+	}
 
-    sf::Image out_img;
-    out_img.create(img.getSize().x, img.getSize().y / 1.2, sf::Color::Red);
-    for (int i = 0; i < out_img.getSize().x * out_img.getSize().y; i++)
-    {
-        int x = i % out_img.getSize().x;
-        int y = i / out_img.getSize().x;
+	SDL_DestroyTexture(texture);
+	SDL_FreeSurface(image);
+	SDL_DestroyRenderer(render);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
-        out_img.setPixel(x, y, img.getPixel(x, y));
-    }
-    */
-    
-    int windowx = 800, windowy = 600;
-    
-    if (InitWindow(windowx, windowy))
-    {
-        std::cout << "Failed to initialize window";
-        return 1;
-    }
-
-    SDL_UpdateWindowSurface(window); // after all drawing is done
-
-    Quit();
-
-    return 0;
-}
-
-std::wstring getFile()
-{
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"FSD Image\0 *.FSD\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    std::string s = "";
-    std::wstring empty(s.begin(), s.end());
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
-        return ws;
-    }
-    return empty;
+	return 0;
 }
