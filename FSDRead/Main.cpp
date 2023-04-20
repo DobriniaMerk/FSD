@@ -1,24 +1,10 @@
-#include <SDL.h>
-
-#include "Compress.cpp"
-
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <iterator>
-#include <windows.h>
-#include <string.h>
-
-// zpaq
-#include "libzpaq.h"
-#include <stdio.h>
-#include <stdlib.h>
-// zpaq
+//#include <SDL.h>
+#include "Compress.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 
 SDL_Window* window = NULL;
-SDL_Renderer* render = NULL;
+SDL_Surface* windowSurface = NULL;
 
 /// <summary>
 /// Initialize window
@@ -34,7 +20,7 @@ int InitWindow(int w, int h)
 		return 1;
 	}
 
-	window = SDL_CreateWindow("FSD Reader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
+	window = SDL_CreateWindow("FSD Reader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 	if (window == NULL)
 	{
@@ -42,7 +28,15 @@ int InitWindow(int w, int h)
 		return 1;
 	}
 
-	render = SDL_CreateRenderer(window, -1, 0);
+	SDL_SetWindowMinimumSize(window, w, h);
+
+	windowSurface = SDL_GetWindowSurface(window);
+
+	if (windowSurface == NULL)
+	{
+		std::cout << "Failed to get window surface";
+		return 1;
+	}
 
 	return 0;
 }
@@ -51,7 +45,8 @@ int main(int argc, char** argv)
 {
 	std::wstring str;
 
-	int windowx = 800, windowy = 600;  // TODO: set based on image size
+	SDL_Surface* image = Compress::getImage();
+	int windowx = image->w, windowy = image->h;
 
 	if (InitWindow(windowx, windowy))
 	{
@@ -59,11 +54,8 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	SDL_Surface* image = Compress::getImage();
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(render, image);
-
-	SDL_RenderCopy(render, texture, NULL, NULL);
-	SDL_UpdateWindowSurface(window); // after all drawing is done
+	SDL_BlitSurface(image, NULL, windowSurface, NULL);
+	SDL_UpdateWindowSurface(window);
 
 	bool quit = false;
 	SDL_Event event;
@@ -78,18 +70,16 @@ int main(int argc, char** argv)
 		case SDL_WINDOWEVENT:
 			switch (event.window.event)
 			{
-			case SDL_WINDOWEVENT_RESIZED:
-				SDL_RenderClear(render);
-				SDL_RenderCopy(render, texture, NULL, NULL);
-				SDL_UpdateWindowSurface(window); // after all drawing is done
+			case SDL_WINDOWEVENT_RESIZED:  // currently not working as intended
+				SDL_BlitSurface(image, NULL, windowSurface, NULL);
+				SDL_UpdateWindowSurface(window);
 				break;
 			}
 		}
 	}
 
-	SDL_DestroyTexture(texture);
 	SDL_FreeSurface(image);
-	SDL_DestroyRenderer(render);
+	SDL_FreeSurface(windowSurface);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 

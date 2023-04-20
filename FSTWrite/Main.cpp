@@ -13,8 +13,8 @@ std::wstring getFile();
 std::wstring getFolder();
 
 
-std::ifstream filein;
-std::ofstream fileout;
+//std::ifstream filein;
+//std::ofstream fileout;
 sf::String savefolder;  // folder to save final image in; only ASCII symbols
 char tempfile[100];
 

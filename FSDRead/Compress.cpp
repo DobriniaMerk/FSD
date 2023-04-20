@@ -12,11 +12,48 @@ void set_pixel(SDL_Surface* surface, int x, int y, Uint32 p)  // not needed for 
     *pixel = p;
 }
 
+class In : public libzpaq::Reader
+{
+public:
+    std::ifstream* readfile;
+
+    In(std::ifstream* f)
+    {
+        readfile = f;
+    }
+
+    int offset = 0;
+    int get() {
+        unsigned char t;
+        if (!readfile->eof())
+        {
+            readfile->seekg(offset++);
+            readfile->read((char*)&t, 1);
+            return t;
+        }
+
+        return -1;
+    }  // returns byte 0..255 or -1 at EOF
+};
+
+class Out : public libzpaq::Writer
+{
+public:
+    std::ofstream* writefile;
+
+    Out(std::ofstream* f)
+    {
+        writefile = f;
+    }
+
+    void put(int c) {
+        unsigned char t = c;
+        writefile->write((char*)&t, 1);
+    }  // writes 1 byte 0..255
+};
+
 std::string Compress::decompress()
 {
-    In in(&filein);
-    Out out(&fileout);
-
     char tempfile[100];
 
     std::wstring filename;
@@ -24,10 +61,18 @@ std::string Compress::decompress()
 
     filename = getFile();
 
-    filein = std::ifstream(filename, std::ios::in | std::ios::binary);
-    fileout = std::ofstream(tempfile, std::ios::out | std::ios::binary | std::ios::trunc);  // trunc means clear file and then write to it
+    std::ifstream filein = std::ifstream(filename, std::ios::in | std::ios::binary);
+    std::ofstream fileout = std::ofstream(tempfile, std::ios::out | std::ios::binary | std::ios::trunc);  // trunc means clear file and then write to it
+
+    In in(&filein);
+    Out out(&fileout);
 
     libzpaq::decompress(&in, &out);
+
+   // std::cout << "Decompressed file\n";
+
+    filein.close();
+    fileout.close();
 
     return tempfile;
 }
@@ -49,9 +94,9 @@ SDL_Surface* Compress::getImage()
     y /= 1.2;  // because of the bug that distorts bottom of the image
     surface = SDL_CreateRGBSurface(0, x, y, 32, 0, 0, 0, 0);  // using default colormode and depth; consider changing to 8 bit depth and working with palettes?
 
-    std::cout << "-------------------" << std::endl;
-    std::cout << "X: " << x << " Y: " << y << std::endl << "Number of colors: " << (int)colornum << std::endl;
-    std::cout << "-------------------" << std::endl;
+  //  std::cout << "-------------------" << std::endl;
+   // std::cout << "X: " << x << " Y: " << y << std::endl << "Number of colors: " << (int)colornum << std::endl;
+    //std::cout << "-------------------" << std::endl;
 
     //HERE; vector of colors named colors
     std::vector<Uint32> colors;
@@ -62,12 +107,13 @@ SDL_Surface* Compress::getImage()
         file.read((char*)&r, sizeof(char));
         file.read((char*)&g, sizeof(char));
         file.read((char*)&b, sizeof(char));
-        std::cout << (int)r << ", " << (int)g << ", " << (int)b << std::endl;
+
+       // std::cout << "Color " << i+1 << ": (" << (int)r << ", " << (int)g << ", " << (int)b << ")" << std::endl;
 
         colors.push_back(SDL_MapRGB(surface->format, r, g, b));
     }
 
-    std::cout << "-------------------" << std::endl;
+   // std::cout << "-------------------" << std::endl;
 
     unsigned int n = 0;
 
@@ -102,7 +148,7 @@ SDL_Surface* Compress::getImage()
         SDL_FillRects(surface, &(fillRects[i][0]), fillRects[i].size(), colors[i]);
     }
 
-    std::cout << n << ' ' << x * y;
+  //  std::cout << n << ' ' << x * y;
 
     file.close();
 
@@ -131,7 +177,7 @@ std::wstring Compress::getFile()
     if (GetOpenFileName(&ofn) == TRUE)
     {
         std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
+    //    std::wcout << ws << std::endl;
         return ws;
     }
     return empty;
