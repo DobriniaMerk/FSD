@@ -170,6 +170,7 @@ std::wstring Compress::getFile()
     ofn.nMaxFileTitle = 0;
     ofn.lpstrInitialDir = NULL;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ofn.FlagsEx = OFN_EX_NOPLACESBAR; // makes things work but look XP
 
     std::string s = "";
     std::wstring empty(s.begin(), s.end());
