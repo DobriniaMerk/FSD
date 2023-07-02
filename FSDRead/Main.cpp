@@ -45,7 +45,7 @@ int main(int argc, char** argv)
 {
 	std::wstring str;
 
-	SDL_Surface* image = Compress::getImage();
+	SDL_Surface* image = getImage();
 	int windowx = image->w, windowy = image->h;
 
 	if (InitWindow(windowx, windowy))

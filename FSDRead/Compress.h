@@ -19,11 +19,7 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-static class Compress
-{
-	static std::string decompress();
-	static std::wstring getFile();
 
-public:
-	static SDL_Surface* getImage();
-};
+std::string decompress();
+std::wstring getFile();
+SDL_Surface* getImage();

@@ -52,7 +52,7 @@ public:
     }  // writes 1 byte 0..255
 };
 
-std::string Compress::decompress()
+std::string decompress()
 {
     char tempfile[100];
 
@@ -77,7 +77,7 @@ std::string Compress::decompress()
     return tempfile;
 }
 
-SDL_Surface* Compress::getImage()
+SDL_Surface* getImage()
 {
     std::string decompressed = decompress();
 
@@ -155,7 +155,7 @@ SDL_Surface* Compress::getImage()
     return surface;
 }
 
-std::wstring Compress::getFile()
+std::wstring getFile()
 {
     // common dialog box structure, setting all fields to 0 is important
     OPENFILENAME ofn = { 0 };
