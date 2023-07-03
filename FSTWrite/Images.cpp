@@ -169,49 +169,50 @@ std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> 
 std::vector<SDL_Color> Quantize(SDL_Surface* img, int colorNum)
 {
     std::vector<SDL_Color> means(colorNum);
-    std::vector<double> sum = { 0, 0, 0 };
-    int n, num;
 
     means = QuantizeMedian(img, colorNum);
+    std::vector<SDL_Color> old_means = means;
 
     int imgSize = img->w * img->h;
     Uint32* pixels = (Uint32*)img->pixels;
 
     for (int i = 0; i < 100; i++)
     {
-        num = 0;
+        std::vector<std::tuple<long long, long long, long long>> sum(colorNum, { 0, 0, 0 });
+        std::vector<int> n(colorNum, 0);
 
-        //foreach(sf::Color mean in means)
-        for(int j = 0; j < colorNum; j++)
+        for (int k = 1; k < imgSize; k += 30)
         {
-            sum = { 0, 0, 0 };
-            n = 0;
-            
-            
-            for (int k = 1; k < imgSize; k += 30)
-            {
-                Uint8 r, g, b;
-                SDL_GetRGB(pixels[k], img->format, &r, &g, &b);
-                SDL_Color color = { r, g, b };
-                if (GetNearest(color, means, 255) == means[j])
-                {
-                    sum[0] += r;
-                    sum[1] += g;
-                    sum[2] += b;
-                    n++;
-                }
-            }
+            Uint8 r, g, b;
+            SDL_GetRGB(pixels[k], img->format, &r, &g, &b);
+            SDL_Color color = { r, g, b };
+            int nearestmean = GetNearest(color, means, 300*300*300);
 
-            if (n != 0)
-            {
-                sum[0] /= (double)n;
-                sum[1] /= (double)n;
-                sum[2] /= (double)n;
-                SDL_Color t = { sum[0], sum[1], sum[2] };
-                means[num] = t;
-            }
-            num++;
+            if (nearestmean < 0)
+                continue;
+
+            std::get<0>(sum[nearestmean]) += r;
+            std::get<1>(sum[nearestmean]) += g;
+            std::get<2>(sum[nearestmean]) += b;
+
+            n[nearestmean]++;
         }
+
+        for (int i = 0; i < colorNum; ++i)
+        {
+            if (n[i] != 0)
+            {
+                SDL_Color t = { std::get<0>(sum[i]) / n[i], std::get<1>(sum[i]) / n[i], std::get<2>(sum[i]) / n[i] };
+                means[i] = t;
+            }
+        }
+
+        if (means == old_means)
+        {
+            std::cout << "Done " << i << " quantization cycles\n";
+            break;
+        }
+        old_means = means;
     }
 
     std::cout << "----------------------" << std::endl;
@@ -229,10 +230,10 @@ std::vector<SDL_Color> Quantize(SDL_Surface* img, int colorNum)
 /// <param name="search">Array for searching in</param>
 /// <param name="maxDist">Maximum distance of nearest color</param>
 /// <returns>Color</returns>
-SDL_Color GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist)
+int GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist)
 {
     float dist = -1, tDist = 0;
-    SDL_Color ret = color;
+    int ret = -1;
     SDL_Color c;
 
     //foreach (sf::Color c in search)
@@ -244,7 +245,7 @@ SDL_Color GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist
         if (tDist < maxDist && (dist == -1 || tDist < dist))
         {
             dist = tDist;
-            ret = c;
+            ret = i;
         }
     }
 
@@ -296,7 +297,7 @@ std::vector<SDL_Color> Dither(SDL_Surface*& image, int colorDepth)
         for (int y = 0; y < image->h; y++)
         {
             SDL_Color pix = getPixel(image, x, y);
-            SDL_Color wanted = GetNearest(pix, colors, 100000000);
+            SDL_Color wanted = colors[GetNearest(pix, colors, 100000000)];
             pixels[x + y*w] = SDL_MapRGB(format, wanted.r, wanted.g, wanted.b);
 
             SDL_Color error = { clamp(pix.r - wanted.r, 0, 255), clamp(pix.g - wanted.g, 0, 255), clamp(pix.b - wanted.b, 0, 255) };

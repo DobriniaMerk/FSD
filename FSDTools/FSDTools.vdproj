@@ -21,8 +21,38 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_353B9AFB5A007C247AC59334869E8022"
+        "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_82616BC92C648C7070F2539A38EF0F0E"
+        "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8764F58F112836FE2E4EE1D66BBCDE2E"
+        "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BE629BDDD73BA9846FCDDCBD6E2F6308"
+        "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_CA266F7E977D4613B1745FE431D7CDA3"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D26D074F3DD2278163A61E639856CE2E"
+        "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -43,6 +73,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -59,6 +97,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -80,6 +126,106 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_353B9AFB5A007C247AC59334869E8022"
+            {
+            "SourcePath" = "8:MSVCP140D.dll"
+            "TargetName" = "8:MSVCP140D.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82616BC92C648C7070F2539A38EF0F0E"
+            {
+            "SourcePath" = "8:COMDLG32.dll"
+            "TargetName" = "8:COMDLG32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8764F58F112836FE2E4EE1D66BBCDE2E"
+            {
+            "SourcePath" = "8:ucrtbased.dll"
+            "TargetName" = "8:ucrtbased.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BE629BDDD73BA9846FCDDCBD6E2F6308"
+            {
+            "SourcePath" = "8:VCRUNTIME140D.dll"
+            "TargetName" = "8:VCRUNTIME140D.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D26D074F3DD2278163A61E639856CE2E"
+            {
+            "SourcePath" = "8:VCRUNTIME140_1D.dll"
+            "TargetName" = "8:VCRUNTIME140_1D.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -695,7 +841,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_02664B0CC5884713BD5D059E52E12FBA"
             {
-            "SourcePath" = "8:..\\FSTWrite\\Release\\FSDRead.exe"
+            "SourcePath" = "8:..\\FSTWrite\\x64\\Debug\\FSDRead.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
@@ -723,7 +869,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_CA266F7E977D4613B1745FE431D7CDA3"
             {
-            "SourcePath" = "8:..\\FSTWrite\\Release\\FSDWrite.exe"
+            "SourcePath" = "8:..\\FSTWrite\\x64\\Debug\\FSDWrite.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"

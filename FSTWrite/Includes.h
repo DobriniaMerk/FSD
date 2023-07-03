@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <iterator>
+#include <tuple>
 
 #include <SDL.h>
 #include <SDL_image.h>

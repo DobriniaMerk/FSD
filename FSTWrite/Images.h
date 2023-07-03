@@ -16,7 +16,7 @@ float DistanceTo(SDL_Color self, SDL_Color other);
 std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum);
 std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> _colors);
 std::vector<SDL_Color> Quantize(SDL_Surface* img, int colorNum);
-SDL_Color GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist);
+int GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist);
 SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors);
 // inner methods
 
