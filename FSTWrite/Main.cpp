@@ -59,9 +59,8 @@ void Quit()
 
 int main(int argc, char** argv)
 {
-    tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
-
-    img = loadImage();
+    std::string path = getFile();
+    img = IMG_Load(path.c_str());
     if (img == NULL)
     {
         std::cout << "Either your image is not good enough to load it, or the SDL is somehow broken.\nIt says: " << IMG_GetError() << '\n';
@@ -99,8 +98,8 @@ int main(int argc, char** argv)
                 quit = true;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                // HERE
                 std::string savefolder = getNewFile();
+                tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
                 SaveToFile(img, colors, tempfile);
                 compress(tempfile, savefolder);
                 quit = true;

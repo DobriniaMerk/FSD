@@ -46,14 +46,6 @@ public:
     }  // writes 1 byte 0..255
 };
 
-
-SDL_Surface* loadImage()
-{
-    std::string path = getFile();
-    SDL_Surface* image = IMG_Load(path.c_str());
-    return image;
-}
-
 void compress(std::string source, std::string dest)
 {
     std::ifstream filein = std::ifstream(source, std::ios::in | std::ios::binary);

@@ -46,17 +46,10 @@ public:
     }  // writes 1 byte 0..255
 };
 
-std::string decompress()
+void decompress(std::string source, std::string dest)
 {
-    char tempfile[100];
-
-    std::wstring filename;
-    tmpnam_s(tempfile, 100); // generates temporary filename; almost guaraneed to be unique
-
-    filename = getFile();
-
-    std::ifstream filein = std::ifstream(filename, std::ios::in | std::ios::binary);
-    std::ofstream fileout = std::ofstream(tempfile, std::ios::out | std::ios::binary | std::ios::trunc);  // trunc means clear file and then write to it
+    std::ifstream filein = std::ifstream(source, std::ios::in | std::ios::binary);
+    std::ofstream fileout = std::ofstream(dest, std::ios::out | std::ios::binary | std::ios::trunc);  // trunc means clear file and then write to it
 
     In in(&filein);
     Out out(&fileout);
@@ -67,17 +60,13 @@ std::string decompress()
 
     filein.close();
     fileout.close();
-
-    return tempfile;
 }
 
-SDL_Surface* getImage()
+SDL_Surface* readImage(std::string path)
 {
-    std::string decompressed = decompress();
-
     SDL_Surface* surface;
 
-    std::ifstream file(decompressed, std::ios::in | std::ios::binary);
+    std::ifstream file(path, std::ios::in | std::ios::binary);
     unsigned int x, y;
     unsigned char colornum;
 
@@ -149,7 +138,7 @@ SDL_Surface* getImage()
     return surface;
 }
 
-std::wstring getFile()
+std::string getFile()
 {
     // common dialog box structure, setting all fields to 0 is important
     OPENFILENAME ofn = { 0 };
@@ -167,13 +156,10 @@ std::wstring getFile()
     ofn.FlagsEx = OFN_EX_NOPLACESBAR; // makes things work but look XP
 
     std::string s = "";
-    std::wstring empty(s.begin(), s.end());
 
     if (GetOpenFileName(&ofn) == TRUE)
     {
-        std::wstring ws(ofn.lpstrFile);
-    //    std::wcout << ws << std::endl;
-        return ws;
+        s = (std::string)CW2A(ofn.lpstrFile);
     }
-    return empty;
+    return s;
 }

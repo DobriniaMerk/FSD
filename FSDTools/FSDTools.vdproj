@@ -21,8 +21,38 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_27D2C6F8D57C412F96EA5C6D1A49DC95"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_353B9AFB5A007C247AC59334869E8022"
         "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_353B9AFB5A007C247AC59334869E8022"
+        "OwnerKey" = "8:_CA266F7E977D4613B1745FE431D7CDA3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_377E71F237654FAE80DDC0D36632774C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_53BB984E4C66411C8DADE7E1CC6465B7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6B22BD8B406D4A35A7701A371B2E5C31"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -33,14 +63,44 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_82616BC92C648C7070F2539A38EF0F0E"
+        "OwnerKey" = "8:_CA266F7E977D4613B1745FE431D7CDA3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8764F58F112836FE2E4EE1D66BBCDE2E"
         "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_8764F58F112836FE2E4EE1D66BBCDE2E"
+        "OwnerKey" = "8:_CA266F7E977D4613B1745FE431D7CDA3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_88962B007DA341E89E736701531663AE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A98F58F56E73409A8A7CDAD615402534"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BE629BDDD73BA9846FCDDCBD6E2F6308"
         "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BE629BDDD73BA9846FCDDCBD6E2F6308"
+        "OwnerKey" = "8:_CA266F7E977D4613B1745FE431D7CDA3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -53,6 +113,12 @@
         {
         "MsmKey" = "8:_D26D074F3DD2278163A61E639856CE2E"
         "OwnerKey" = "8:_02664B0CC5884713BD5D059E52E12FBA"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D26D074F3DD2278163A61E639856CE2E"
+        "OwnerKey" = "8:_CA266F7E977D4613B1745FE431D7CDA3"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -80,6 +146,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
         "Release"
@@ -104,6 +178,14 @@
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
             }
         }
     }
@@ -126,6 +208,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27D2C6F8D57C412F96EA5C6D1A49DC95"
+            {
+            "SourcePath" = "8:..\\SDL2\\lib\\x64\\SDL2test.lib"
+            "TargetName" = "8:SDL2test.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_353B9AFB5A007C247AC59334869E8022"
             {
             "SourcePath" = "8:MSVCP140D.dll"
@@ -144,6 +246,66 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_377E71F237654FAE80DDC0D36632774C"
+            {
+            "SourcePath" = "8:..\\SDL2_image\\lib\\x64\\SDL2_image.lib"
+            "TargetName" = "8:SDL2_image.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_53BB984E4C66411C8DADE7E1CC6465B7"
+            {
+            "SourcePath" = "8:..\\SDL2\\lib\\x64\\SDL2main.lib"
+            "TargetName" = "8:SDL2main.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B22BD8B406D4A35A7701A371B2E5C31"
+            {
+            "SourcePath" = "8:..\\SDL2\\lib\\x64\\SDL2.dll"
+            "TargetName" = "8:SDL2.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_82616BC92C648C7070F2539A38EF0F0E"
@@ -184,6 +346,46 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_88962B007DA341E89E736701531663AE"
+            {
+            "SourcePath" = "8:..\\SDL2\\lib\\x64\\SDL2.lib"
+            "TargetName" = "8:SDL2.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A98F58F56E73409A8A7CDAD615402534"
+            {
+            "SourcePath" = "8:..\\SDL2_image\\lib\\x64\\SDL2_image.dll"
+            "TargetName" = "8:SDL2_image.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_5215530BBF2D4E52B1426CC821E526FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BE629BDDD73BA9846FCDDCBD6E2F6308"
@@ -233,7 +435,7 @@
             {
             "Name" = "8:FSD Image"
             "Description" = "8:"
-            "Extensions" = "8:.fsd"
+            "Extensions" = "8:fsd"
             "MIME" = "8:"
             "Icon" = "8:"
             "IconIndex" = "3:0"
@@ -306,7 +508,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FSDTools"
         "ProductCode" = "8:{E9D0DB3B-4BF6-4A8D-BF5E-67D64506AE1D}"
-        "PackageCode" = "8:{90218E67-E106-4646-83BD-BB0CFF85CF85}"
+        "PackageCode" = "8:{6FA8C303-5157-43F8-AAB3-7765E2F5774D}"
         "UpgradeCode" = "8:{B605B96B-F7DE-46BA-93BF-14B777830AB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

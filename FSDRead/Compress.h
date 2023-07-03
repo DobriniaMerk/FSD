@@ -11,6 +11,8 @@
 
 #include <SDL.h>
 
+#include <atlstr.h>
+
 //Zpaq
 #include "libzpaq.h"
 #include <stdio.h>
@@ -19,6 +21,6 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-std::string decompress();
-std::wstring getFile();
-SDL_Surface* getImage();
+void decompress(std::string source, std::string dest);
+std::string getFile();
+SDL_Surface* readImage(std::string path);

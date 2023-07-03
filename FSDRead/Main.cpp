@@ -4,6 +4,7 @@
 
 SDL_Window* window = NULL;
 SDL_Surface* windowSurface = NULL;
+SDL_Surface* image = NULL;
 
 /// <summary>
 /// Initialize window
@@ -42,13 +43,33 @@ int InitWindow(int w, int h)
 
 int main(int argc, char** argv)
 {
-	std::wstring str;
+	HWND windowHandle = GetConsoleWindow();
+	ShowWindow(windowHandle, SW_HIDE);
 
-	SDL_Surface* image = getImage();
+	std::string path;
+
+	if (argc > 1)
+	{
+		path = argv[1];
+	}
+	else
+		path = getFile();
+
+	if (path == "")
+		return 0;
+
+	char tempfile[100];
+	tmpnam_s(tempfile, 100);
+
+	decompress(path, tempfile);
+	image = readImage(tempfile);
+
+
 	int windowx = image->w, windowy = image->h;
 
 	if (InitWindow(windowx, windowy))
 	{
+		ShowWindow(windowHandle, SW_SHOW);
 		std::cout << "Failed to initialize window";
 		return 1;
 	}
@@ -80,6 +101,6 @@ int main(int argc, char** argv)
 	SDL_FreeSurface(image);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
-
+	ShowWindow(windowHandle, SW_SHOW);
 	return 0;
 }
