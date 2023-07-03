@@ -19,7 +19,6 @@
 
 #define _CRT_SECURE_NO_WARNINGS
 
-
 std::string decompress();
 std::wstring getFile();
 SDL_Surface* getImage();

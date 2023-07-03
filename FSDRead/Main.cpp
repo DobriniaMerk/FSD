@@ -1,4 +1,3 @@
-//#include <SDL.h>
 #include "Compress.h"
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -70,7 +69,7 @@ int main(int argc, char** argv)
 		case SDL_WINDOWEVENT:
 			switch (event.window.event)
 			{
-			case SDL_WINDOWEVENT_RESIZED:  // currently not working as intended
+			case SDL_WINDOWEVENT_RESIZED:
 				SDL_BlitSurface(image, NULL, windowSurface, NULL);
 				SDL_UpdateWindowSurface(window);
 				break;
@@ -79,7 +78,6 @@ int main(int argc, char** argv)
 	}
 
 	SDL_FreeSurface(image);
-	SDL_FreeSurface(windowSurface);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 

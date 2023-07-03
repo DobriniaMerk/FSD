@@ -1,172 +1,115 @@
-﻿#include "Utils.cpp"
-#include <iostream>
-#include <windows.h>
-#include <string.h>
+﻿#include "Images.h"
+#include "Files.h"
 
-// zpaq
-#include "libzpaq.h"
-#include <stdio.h>
-#include <stdlib.h>
-// zpaq
-
-std::wstring getFile();
-std::wstring getFolder();
-
-
-//std::ifstream filein;
-//std::ofstream fileout;
-sf::String savefolder;  // folder to save final image in; only ASCII symbols
 char tempfile[100];
 
+SDL_Window* window = NULL;
+SDL_Surface* windowSurface = NULL;
+SDL_Surface* img = NULL;
 
-void libzpaq::error(const char* msg)  // print message and exit
+/// <summary>
+/// Initialize window
+/// </summary>
+/// <param name="w">Window width</param>
+/// <param name="h">Window height</param>
+/// <returns></returns>
+int InitWindow(int w, int h)
 {
-	fprintf(stderr, "Oops: %s\n", msg);
-	exit(1);
-}
-
-class In : public libzpaq::Reader
-{
-public:
-    int offset = 0;
-	int get() {
-		unsigned char t;
-		if (!filein.eof())
-		{
-            filein.seekg(offset++);
-			filein.read((char*)&t, 1);
-			return t;
-		}
-
-		return -1;
-	}  // returns byte 0..255 or -1 at EOF
-} in;
-
-class Out : public libzpaq::Writer
-{
-public:
-	void put(int c) {
-        unsigned char t = c;
-        fileout.write((char*)&t, 1);
-    }  // writes 1 byte 0..255
-} out;
-
-int main()
-{
-    sf::String filename = getFile();   // file to process; only ASCII symbols in path
-    tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
-
-    sf::Image img;
-    img.loadFromFile(filename.toAnsiString()); // load it
-
-
-    int colornum;
-    std::cout << "Input number of colors (must be a power of 2 and no more than 256): ";
-    std::cin >> colornum;
-
-    std::vector<sf::Color> colors = ImageDithering::Utils::Dither(img, colornum);
-
-    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y / 1.2), "Final Image", sf::Style::Close);
-    sf::Texture t;
-    t.loadFromImage(img);
-    sf::Sprite s;
-    s.setTexture(t);
-
-    while (window.isOpen())
+    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
+    if ((IMG_Init(imgflags) & imgflags) != imgflags)
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
+        std::cout << "Something terrible has happened!\nIMG_Init says: " << IMG_GetError() << '\n';
+        return 1;
+    }
 
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                savefolder = getFolder();
-                std::cout << "temporary file name: " << tempfile << "\n";
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+    {
+        std::cout << "Failed to initialize SDL";
+        return 1;
+    }
 
-                std::cout << "savefolder: " << savefolder.toAnsiString() << "\n";
+    window = SDL_CreateWindow("Convert to FSD", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
-                ImageDithering::Utils::SaveToFile(img, colors, tempfile);
+    if (window == NULL)
+    {
+        std::cout << "Failed to create window";
+        return 1;
+    }
 
-                fileout = std::ofstream(savefolder.toAnsiString(), std::ios::out | std::ios::binary | std::ios::trunc);
-                filein = std::ifstream(tempfile, std::ios::in | std::ios::binary);
+    SDL_SetWindowMinimumSize(window, w, h);
 
-                libzpaq::compress(&in, &out, "53,180,0");  // "0".."5" = faster..better
+    windowSurface = SDL_GetWindowSurface(window);
 
-                window.close();
-            }
-        }
-
-        window.clear();
-        window.draw(s);
-        window.display();
+    if (windowSurface == NULL)
+    {
+        std::cout << "Failed to get window surface";
+        return 1;
     }
 
     return 0;
 }
 
-std::wstring getFile()
+void Quit()
 {
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"Image\0*.JPEG;*.JPG;*.PNG;*.BMP;*.TGA;*.PSD;*.HDR;*.PIC\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    std::string s = "";
-    std::wstring empty(s.begin(), s.end());
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
-        return ws;
-    }
-    return empty;
+    SDL_DestroyWindow(window);
+    SDL_FreeSurface(img);
+    SDL_Quit();
+    IMG_Quit();
 }
 
-std::wstring getFolder()
+int main(int argc, char** argv)
 {
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"FSD Image\0*.fsd\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
 
-    std::string s = "";
-    std::wstring empty(s.begin(), s.end());
-
-    if (GetSaveFileName(&ofn) == TRUE)
+    img = loadImage();
+    if (img == NULL)
     {
-        std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
+        std::cout << "Either your image is not good enough to load it, or the SDL is somehow broken.\nIt says: " << IMG_GetError() << '\n';
+        Quit();
+        return -1;
+    }
 
-        if (ws[ws.size() - 4] != '.')  // if saving is broken, it is because of this block
+    int colornum;
+    std::cout << "Input number of colors (must be a power of 2 and no more than 256): ";
+    std::cin >> colornum;
+
+    std::vector<SDL_Color> colors = Dither(img, colornum);
+
+    if (InitWindow(img->w, img->h))
+    {
+        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely, some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
+        std::cout << "In that case, if you will restart the program, all likely shall be well";
+        Quit();
+        return -1;
+    }
+
+    SDL_BlitSurface(img, NULL, windowSurface, NULL);
+    SDL_UpdateWindowSurface(window);
+
+    bool quit = false;
+
+    while (!quit)
+    {
+        SDL_Event e;
+        while (SDL_PollEvent(&e) != 0)
         {
-            ws.push_back('.');
-            ws.push_back('f');
-            ws.push_back('s');
-            ws.push_back('d');
+            switch (e.type)
+            {
+            case SDL_QUIT:
+                quit = true;
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                // HERE
+                std::string savefolder = getNewFile();
+                SaveToFile(img, colors, tempfile);
+                compress(tempfile, savefolder);
+                quit = true;
+                break;
+            }
         }
-
-        return ws;
     }
-    return empty;
+
+    Quit();
+    return 0;
 }
+
