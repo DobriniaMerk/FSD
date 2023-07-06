@@ -13,15 +13,20 @@ SDL_Surface* img = NULL;
 /// <param name="w">Window width</param>
 /// <param name="h">Window height</param>
 /// <returns></returns>
-int InitWindow(int w, int h)
+
+int InitIMG(int imgflags)
 {
-    int imgflags = IMG_INIT_PNG | IMG_INIT_JPG;
-    if ((IMG_Init(imgflags) & imgflags) != imgflags)
+    int t = IMG_Init(imgflags);
+    if ((t & imgflags) != imgflags)
     {
         std::cout << "Something terrible has happened!\nIMG_Init says: " << IMG_GetError() << '\n';
         return 1;
     }
+    return 0;
+}
 
+int InitWindow(int w, int h)
+{
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
     {
         std::cout << "Failed to initialize SDL";
@@ -49,38 +54,60 @@ int InitWindow(int w, int h)
     return 0;
 }
 
-void Quit()
+void Quit(int suspend = 0)
 {
     SDL_DestroyWindow(window);
     SDL_FreeSurface(img);
     SDL_Quit();
     IMG_Quit();
+    if (suspend)
+        system("pause");
 }
 
 int main(int argc, char** argv)
 {
-    std::string path = getFile();
+    std::string path;
+    if (argc > 1)
+    {
+        path = argv[1];
+    }
+    else
+    {
+        path = getFile();
+    }
+
+    if (InitIMG(IMG_INIT_PNG))
+    {
+        std::cout << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
+        Quit(-1);
+        return -1;
+    }
     img = IMG_Load(path.c_str());
+
+    //std::cout << IMG_GetError() << '\n';
+
     if (img == NULL)
     {
         std::cout << "Either your image is not good enough to load it, or the SDL is somehow broken.\nIt says: " << IMG_GetError() << '\n';
-        Quit();
-        return -1;
+        Quit(-1);
+        return -2;
     }
+    if (InitWindow(img->w, img->h))
+    {
+        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely, some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
+        std::cout << "In that case, if you will restart the program, all likely shall be well";
+        Quit();
+        return -3;
+    }
+
+    SDL_BlitSurface(img, NULL, windowSurface, NULL);
+    SDL_UpdateWindowSurface(window);
 
     int colornum;
     std::cout << "Input number of colors (must be a power of 2 and no more than 256): ";
     std::cin >> colornum;
 
     std::vector<SDL_Color> colors = Dither(img, colornum);
-
-    if (InitWindow(img->w, img->h))
-    {
-        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely, some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
-        std::cout << "In that case, if you will restart the program, all likely shall be well";
-        Quit();
-        return -1;
-    }
 
     SDL_BlitSurface(img, NULL, windowSurface, NULL);
     SDL_UpdateWindowSurface(window);
