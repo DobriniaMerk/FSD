@@ -284,8 +284,10 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors)
     return img;
 }
 
-std::vector<SDL_Color> Dither(SDL_Surface*& image, int colorDepth)
+std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
 {
+    SDL_Surface* image = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(orig, NULL, image, NULL);
     std::vector<SDL_Color> colors;
     colors = Quantize(image, colorDepth);
     Uint32* pixels = (Uint32*)image->pixels;
@@ -324,9 +326,7 @@ std::vector<SDL_Color> Dither(SDL_Surface*& image, int colorDepth)
         }
     }
 
-    /*SDL_Surface* t = AddDebug(image, colors);  // decomment in case of missing pixels
-    SDL_FreeSurface(image);
-    image = t;*/
+    SDL_BlitSurface(image, NULL, orig, NULL);
 
     return colors;
 }
@@ -336,8 +336,11 @@ std::vector<SDL_Color> Dither(SDL_Surface*& image, int colorDepth)
 /// </summary>
 /// <param name="img">Image to save</param>
 /// <param name="path">Path to saved image</param>
-void SaveToFile(SDL_Surface* img, std::vector<SDL_Color> colors, std::string filename)
+void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string filename)
 {
+    SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(orig, NULL, img, NULL);
+
     std::ofstream filestream(filename, std::ios::in|std::ios::binary|std::ios::trunc);  // std::ios::trunc is for writing file over instead of appending
     int w = img->w, h = img->h;
     filestream.write((char*)&w, sizeof(unsigned int));  // first 4 bytes is x of image

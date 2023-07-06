@@ -21,5 +21,5 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors);
 // inner methods
 
 // for public use
-std::vector<SDL_Color> Dither(SDL_Surface*& image, int colorDepth);
+std::vector<SDL_Color> Dither(SDL_Surface* image, int colorDepth);
 void SaveToFile(SDL_Surface* img, std::vector<SDL_Color> colors, std::string filename);
