@@ -8,9 +8,11 @@ SDL_Color operator +(SDL_Color a, SDL_Color b);
 bool operator ==(SDL_Color a, SDL_Color b);
 // operators
 
+
 // inner methods
-SDL_Color getPixel(SDL_Surface* img, int x, int y);
-int clamp(int val, int min, int max);
+void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel);
+SDL_Color get_pixel(SDL_Surface* surface, int x, int y);
+int clamp(int val, int min = 0, int max = 255);
 float DistanceTo(SDL_Color self, SDL_Color other);
 
 std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum);

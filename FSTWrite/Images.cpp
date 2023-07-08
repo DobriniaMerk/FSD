@@ -1,5 +1,10 @@
 ﻿#include "Images.h"
 
+struct color
+{
+    int r, g, b;
+};
+
 SDL_Color operator /(SDL_Color self, float n)
 {
     SDL_Color c = { (self.r / n), (self.g / n), (self.b / n) };
@@ -16,16 +21,6 @@ SDL_Color operator +(SDL_Color a, SDL_Color b)
 {
     SDL_Color c = { clamp((int)a.r + (int)b.r, 0, 255), clamp((int)a.g + (int)b.g, 0, 255), clamp((int)a.b + (int)b.b, 0, 255) };
     return c;
-}
-
-SDL_Color Multiply(SDL_Color self, float n)
-{
-    return self * n;
-}
-
-SDL_Color Add(SDL_Color a, SDL_Color b)
-{
-    return a + b;
 }
 
 bool operator ==(SDL_Color a, SDL_Color b)
