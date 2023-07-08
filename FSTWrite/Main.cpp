@@ -7,6 +7,7 @@ SDL_Window* window = NULL;
 SDL_Surface* windowSurface = NULL;
 SDL_Surface* image = NULL;
 
+
 /// <summary>
 /// Initialize window
 /// </summary>
@@ -76,23 +77,23 @@ int main(int argc, char** argv)
         path = getFile();
     }
 
-    if (InitIMG(IMG_INIT_PNG))
+    if (InitIMG(IMG_INIT_PNG | IMG_INIT_JPG))
     {
         std::cout << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
         Quit(-1);
         return -1;
     }
     image = IMG_Load(path.c_str());
-
-    SDL_Surface* img = SDL_CreateRGBSurface(0, image->w, image->h, 32, 0, 0, 0, 0);
-    SDL_BlitSurface(image, NULL, img, NULL);
-
-    if (img == NULL)
+    if (image == NULL)
     {
         std::cout << "Either your image is not good enough to load it, or the SDL is somehow broken.\nIt says: " << IMG_GetError() << '\n';
         Quit(-1);
         return -2;
     }
+
+    SDL_Surface* img = SDL_CreateRGBSurface(0, image->w, image->h, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(image, NULL, img, NULL);
+
     if (InitWindow(img->w, img->h))
     {
         std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely, some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
@@ -127,6 +128,11 @@ int main(int argc, char** argv)
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 std::string savefolder = getNewFile();
+                if (savefolder == "")
+                {
+                    std::cout << "You provided no path for file to save. Please, try harder next time.\n";
+                    break;
+                }
                 tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
                 SaveToFile(img, colors, tempfile);
                 compress(tempfile, savefolder);
@@ -135,7 +141,6 @@ int main(int argc, char** argv)
             }
         }
     }
-
     Quit();
     return 0;
 }
