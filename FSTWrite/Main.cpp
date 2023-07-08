@@ -128,6 +128,11 @@ int main(int argc, char** argv)
                 break;
             case SDL_MOUSEBUTTONDOWN:
                 std::string savefolder = getNewFile();
+                if (savefolder == "")
+                {
+                    std::cout << "You provided no path for file to save. Please, try harder next time.\n";
+                    break;
+                }
                 tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
                 SaveToFile(img, colors, tempfile);
                 compress(tempfile, savefolder);
@@ -136,7 +141,6 @@ int main(int argc, char** argv)
             }
         }
     }
-
     Quit();
     return 0;
 }

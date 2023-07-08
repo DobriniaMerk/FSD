@@ -9,7 +9,7 @@ struct color
 
     color() {};
     color(int _r, int _g, int _b) : r(_r), g(_g), b(_b) {};
-    color(SDL_Color c)
+    explicit color(SDL_Color c)
     {
         r = c.r;
         g = c.g;
@@ -33,9 +33,14 @@ color operator*(color c, float n)
     return color(c.r * n, c.g * n, c.b * n);
 }
 
+color operator/(color c, float n)
+{
+    return color(c.r / n, c.g / n, c.b / n);
+}
+
 color operator+(color a, color b)
 {
-    return color(a.r + b.r, a.g + b.g, a.b + a.b);
+    return color(a.r + b.r, a.g + b.g, a.b + b.b);
 }
 
 
@@ -57,16 +62,16 @@ bool operator ==(SDL_Color a, SDL_Color b)
 }
 
 
-void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel)
+void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel) // stackoverflow's balck magic
 {
     Uint32* const target_pixel = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
     *target_pixel = pixel;
 }
 
-SDL_Color get_pixel(SDL_Surface* surface, int x, int y)
+SDL_Color get_pixel(SDL_Surface* surface, int x, int y) // stackoverflow's balck magic, modified
 {
     Uint32* const target_pixel = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
-    SDL_Color ret;
+    SDL_Color ret = {0, 0, 0};
     SDL_GetRGB(*target_pixel, surface->format, &ret.r, &ret.g, &ret.b);
     return ret;
 }
@@ -103,7 +108,6 @@ std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum)
             SDL_Color c = get_pixel(img, i, j);
             oldColors[0].push_back(c);
         }
-
 
     while (filledRows < colorNum)  // while not all colors are done
     {
@@ -204,27 +208,21 @@ std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)  // transfer to
     std::vector<SDL_Color> old_means = means;
 
     int imgSize = img->w * img->h;
-    Uint32* pixels = (Uint32*)img->pixels;
 
     for (int i = 0; i < 100; i++)
     {
-        std::vector<std::tuple<long long, long long, long long>> sum(colorNum, { 0, 0, 0 });
+        std::vector<color> sum(colorNum);
         std::vector<int> n(colorNum, 0);
 
         for (int k = 1; k < imgSize; k += 30)
         {
-            Uint8 r, g, b;
-            SDL_GetRGB(pixels[k], img->format, &r, &g, &b);
-            SDL_Color color = { r, g, b };
-            int nearestmean = GetNearest(color, means, 300*300*300);
+            SDL_Color col = get_pixel(img, k % img->w, k / img->w);
+            int nearestmean = GetNearest(col, means, 300*300*300);
 
             if (nearestmean < 0)
                 continue;
 
-            std::get<0>(sum[nearestmean]) += r;
-            std::get<1>(sum[nearestmean]) += g;
-            std::get<2>(sum[nearestmean]) += b;
-
+            sum[nearestmean] = sum[nearestmean] + (color)col;
             n[nearestmean]++;
         }
 
@@ -232,7 +230,7 @@ std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)  // transfer to
         {
             if (n[i] != 0)
             {
-                SDL_Color t = { std::get<0>(sum[i]) / n[i], std::get<1>(sum[i]) / n[i], std::get<2>(sum[i]) / n[i] };
+                SDL_Color t = (SDL_Color)(sum[i] / n[i]);
                 means[i] = t;
             }
         }
@@ -315,35 +313,35 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
     std::vector<SDL_Color> colors;
     colors = Quantize(img, colorDepth);
 
-    for (int x = 0; x < img->w; x++)
+    for (int y = 0; y < img->h; y++)
     {
-        for (int y = 0; y < img->h; y++)
+        for (int x = 0; x < img->w; x++)
         {
             SDL_Color pix = get_pixel(img, x, y);
             SDL_Color wanted = colors[GetNearest(pix, colors, 100000000)];
             set_pixel(img, x, y, SDL_MapRGB(img->format, wanted.r, wanted.g, wanted.b));
-            color error = pix - wanted;
+            color error = (color)pix - (color)wanted;
             color t;
 
             if (x < img->w - 1)
             {
-                t = (error * (7.0 / 16.0)) + get_pixel(img, x + 1, y);
+                t = (error * (7.0 / 16.0)) + (color)get_pixel(img, x + 1, y);
                 set_pixel(img, x + 1, y, SDL_MapRGB(img->format, clamp(t.r, 0, 255), clamp(t.g, 0, 255), clamp(t.b, 0, 255)));
             }
             if (y < img->h - 1)
             {
                 if (x < img->w - 1)
                 {
-                    t = (error * (1.0 / 16.0)) + get_pixel(img, x + 1, y + 1);
+                    t = (error * (1.0 / 16.0)) + (color)get_pixel(img, x + 1, y + 1);
                     set_pixel(img, x + 1, y + 1, SDL_MapRGB(img->format, clamp(t.r, 0, 255), clamp(t.g, 0, 255), clamp(t.b, 0, 255)));
                 }
                 if (x > 0)
                 {
-                    t = (error * (3.0 / 16.0)) + get_pixel(img, x - 1, y + 1);
+                    t = (error * (3.0 / 16.0)) + (color)get_pixel(img, x - 1, y + 1);
                     set_pixel(img, x - 1, y + 1, SDL_MapRGB(img->format, clamp(t.r, 0, 255), clamp(t.g, 0, 255), clamp(t.b, 0, 255)));
                 }
 
-                t = (error * (5.0 / 16.0)) + get_pixel(img, x, y + 1);
+                t = (error * (5.0 / 16.0)) + (color)get_pixel(img, x, y + 1);
                 set_pixel(img, x, y + 1, SDL_MapRGB(img->format, clamp(t.r, 0, 255), clamp(t.g, 0, 255), clamp(t.b, 0, 255)));
             }
         }
@@ -395,15 +393,19 @@ void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string fi
     {
         counter++;
 
-        Uint8 r, g, b;
-        SDL_GetRGB(((Uint32*)img->pixels)[n], img->format, &r, &g, &b);
-        SDL_Color pixelColor = { r, g, b };
+        //Uint8 r, g, b;
+        //SDL_GetRGB(((Uint32*)img->pixels)[n], img->format, &r, &g, &b);
+        //SDL_Color pixelColor = { r, g, b };
+        x = n % w, y = n / w;
+        if (x == 0)
+            std::string breakoint = "something broke";
+        SDL_Color pixelColor = get_pixel(img, x, y);
 
         if (pixelColor == color && rowLength <= maxrow)    // if current pixel color matches color of row     // 255 is reserved
             rowLength++;
         else                                           // if not, write current row length and color to file and start new row
         {
-            code = 0;
+            code = 255;
 
             for (unsigned int i = 0; i < colors.size(); i++)   // search for matching color code
             {
@@ -413,6 +415,9 @@ void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string fi
                     break;
                 }
             }
+
+            if (code == 255)
+                std::cout << "Something went terribly wrong! Pixel " << x << ", " << y << " is not in the colorlist!\n";
 
             filestream.write((char*)&rowLength, sizeof(char));
             filestream.write((char*)&code, sizeof(char));
