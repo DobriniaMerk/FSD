@@ -1,21 +1,31 @@
 ﻿#include "Images.h"
 
-SDL_Color operator /(SDL_Color self, int n)
+SDL_Color operator /(SDL_Color self, float n)
 {
     SDL_Color c = { (self.r / n), (self.g / n), (self.b / n) };
     return c;
 }
 
-SDL_Color operator *(SDL_Color self, int n)
+SDL_Color operator *(SDL_Color self, float n)
 {
-    SDL_Color c = { (self.r * n), (self.g * n), (self.b * n) };
+    SDL_Color c = { clamp((int)self.r * n, 0, 255), clamp((int)self.g * n, 0, 255), clamp((int)self.b * n, 0, 255) };
     return c;
 }
 
 SDL_Color operator +(SDL_Color a, SDL_Color b)
 {
-    SDL_Color c = { clamp(a.r + b.r, 0, 255), clamp(a.g + b.g, 0, 255), clamp(a.b + b.b, 0, 255) };
+    SDL_Color c = { clamp((int)a.r + (int)b.r, 0, 255), clamp((int)a.g + (int)b.g, 0, 255), clamp((int)a.b + (int)b.b, 0, 255) };
     return c;
+}
+
+SDL_Color Multiply(SDL_Color self, float n)
+{
+    return self * n;
+}
+
+SDL_Color Add(SDL_Color a, SDL_Color b)
+{
+    return a + b;
 }
 
 bool operator ==(SDL_Color a, SDL_Color b)
@@ -166,8 +176,11 @@ std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> 
 /// <param name="img">Sourse image to take colors out</param>
 /// <param name="colorNum">Number of colors to return</param>
 /// <returns>Color[colorNum]</returns>
-std::vector<SDL_Color> Quantize(SDL_Surface* img, int colorNum)
+std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)
 {
+    SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(orig, NULL, img, NULL);
+
     std::vector<SDL_Color> means(colorNum);
 
     means = QuantizeMedian(img, colorNum);
@@ -288,6 +301,7 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
 {
     SDL_Surface* image = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, image, NULL);
+
     std::vector<SDL_Color> colors;
     colors = Quantize(image, colorDepth);
     Uint32* pixels = (Uint32*)image->pixels;
@@ -301,10 +315,12 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
             SDL_Color pix = getPixel(image, x, y);
             SDL_Color wanted = colors[GetNearest(pix, colors, 100000000)];
             pixels[x + y*w] = SDL_MapRGB(format, wanted.r, wanted.g, wanted.b);
+            SDL_Color error = { clamp(std::abs((int)pix.r - (int)wanted.r), 0, 255), clamp(std::abs((int)pix.g - (int)wanted.g), 0, 255), clamp(std::abs((int)pix.b - (int)wanted.b), 0, 255) };
 
-            SDL_Color error = { clamp(pix.r - wanted.r, 0, 255), clamp(pix.g - wanted.g, 0, 255), clamp(pix.b - wanted.b, 0, 255) };
             SDL_Color t;
-            if (x < w - 1)  //  error distribution;  if's are almost black magic so do not touch without need
+
+            // broken
+            if (x < w - 1)
             {
                 t = (error * (7.0 / 16.0)) + getPixel(image, x + 1, y);
                 pixels[x + 1 + y * w] = SDL_MapRGB(format, t.r, t.g, t.b);
@@ -314,15 +330,16 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
                 if (x < w - 1)
                 {
                     t = (error * (1.0 / 16.0)) + getPixel(image, x + 1, y + 1);
-                    pixels[x + 1 + (y + 1)*w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                    pixels[x + 1 + (y + 1) * w] = SDL_MapRGB(format, t.r, t.g, t.b);
                 }
-
                 t = (error * (5.0 / 16.0)) + getPixel(image, x, y + 1);
-                pixels[x + (y + 1)*w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                pixels[x + (y + 1) * w] = SDL_MapRGB(format, t.r, t.g, t.b);
 
                 t = (error * (3.0 / 16.0)) + getPixel(image, x - 1, y + 1);
-                pixels[x - 1 + (y + 1)*w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                pixels[x - 1 + (y + 1) * w] = SDL_MapRGB(format, t.r, t.g, t.b);
             }
+            // broken
+
         }
     }
 

@@ -128,7 +128,8 @@ SDL_Surface* readImage(std::string path)
 
     for (int i = 0; i < colornum; i++)
     {
-        SDL_FillRects(surface, &(fillRects[i][0]), fillRects[i].size(), colors[i]);
+        if (fillRects[i].size())
+            SDL_FillRects(surface, &(fillRects[i][0]), fillRects[i].size(), colors[i]);
     }
 
   //  std::cout << n << ' ' << x * y;
