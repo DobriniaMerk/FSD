@@ -33,14 +33,19 @@ bool operator ==(SDL_Color a, SDL_Color b)
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
 
-SDL_Color getPixel(SDL_Surface* img, int x, int y)
+void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel)
 {
-    Uint8 r, g, b;
-    SDL_GetRGB(((Uint32*)img->pixels)[x + y * img->w], img->format, &r, &g, &b);
-    SDL_Color pix = { r, g, b };
-    return pix;
+    Uint32* const target_pixel = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
+    *target_pixel = pixel;
 }
 
+SDL_Color get_pixel(SDL_Surface* surface, int x, int y)
+{
+    Uint32* const target_pixel = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
+    SDL_Color ret;
+    SDL_GetRGB(*target_pixel, surface->format, &ret.r, &ret.g, &ret.b);
+    return ret;
+}
 
 int clamp(int val, int mn, int mx)
 {
@@ -70,7 +75,7 @@ std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum)
     for (int i = 0; i < img->w; i += skip)  // set first array of oldColors to img pixels, with interval of skip
         for (int j = 0; j < img->h; j += skip)
         {
-            SDL_Color c = getPixel(img, i, j);
+            SDL_Color c = get_pixel(img, i, j);
             oldColors[0].push_back(c);
         }
 
@@ -312,31 +317,34 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
     {
         for (int y = 0; y < image->h; y++)
         {
-            SDL_Color pix = getPixel(image, x, y);
+            SDL_Color pix = get_pixel(image, x, y);
             SDL_Color wanted = colors[GetNearest(pix, colors, 100000000)];
-            pixels[x + y*w] = SDL_MapRGB(format, wanted.r, wanted.g, wanted.b);
-            SDL_Color error = { clamp(std::abs((int)pix.r - (int)wanted.r), 0, 255), clamp(std::abs((int)pix.g - (int)wanted.g), 0, 255), clamp(std::abs((int)pix.b - (int)wanted.b), 0, 255) };
+            set_pixel(image, x, y, SDL_MapRGB(image->format, wanted.r, wanted.g, wanted.b));
+            SDL_Color error = { (Uint8)clamp(std::abs((int)pix.r - (int)wanted.r), 0, 255), (Uint8)clamp(std::abs((int)pix.g - (int)wanted.g), 0, 255), (Uint8)clamp(std::abs((int)pix.b - (int)wanted.b), 0, 255) };
 
             SDL_Color t;
 
             // broken
             if (x < w - 1)
             {
-                t = (error * (7.0 / 16.0)) + getPixel(image, x + 1, y);
-                pixels[x + 1 + y * w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                t = (error * (7.0 / 16.0)) + get_pixel(image, x + 1, y);
+                set_pixel(image, x + 1, y, SDL_MapRGB(image->format, t.r, t.g, t.b));
             }
             if (y < image->h - 1)
             {
                 if (x < w - 1)
                 {
-                    t = (error * (1.0 / 16.0)) + getPixel(image, x + 1, y + 1);
-                    pixels[x + 1 + (y + 1) * w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                    t = (error * (1.0 / 16.0)) + get_pixel(image, x + 1, y + 1);
+                    set_pixel(image, x + 1, y + 1, SDL_MapRGB(image->format, t.r, t.g, t.b));
                 }
-                t = (error * (5.0 / 16.0)) + getPixel(image, x, y + 1);
-                pixels[x + (y + 1) * w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                if (x > 0)
+                {
+                    t = (error * (3.0 / 16.0)) + get_pixel(image, x - 1, y + 1);
+                    set_pixel(image, x - 1, y + 1, SDL_MapRGB(image->format, t.r, t.g, t.b));
+                }
 
-                t = (error * (3.0 / 16.0)) + getPixel(image, x - 1, y + 1);
-                pixels[x - 1 + (y + 1) * w] = SDL_MapRGB(format, t.r, t.g, t.b);
+                t = (error * (5.0 / 16.0)) + get_pixel(image, x, y + 1);
+                set_pixel(image, x, y + 1, SDL_MapRGB(image->format, t.r, t.g, t.b));
             }
             // broken
 
@@ -381,7 +389,7 @@ void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string fi
     }
 
 
-    SDL_Color color = getPixel(img, 0, 0);  // write first pixel in memory
+    SDL_Color color = get_pixel(img, 0, 0);  // write first pixel in memory
     unsigned char rowLength = 1;
 
     unsigned int x, y;
