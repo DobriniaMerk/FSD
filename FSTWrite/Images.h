@@ -2,8 +2,8 @@
 #include "Includes.h"
 
 // operators
-SDL_Color operator /(SDL_Color self, int n);
-SDL_Color operator *(SDL_Color self, int n);
+SDL_Color operator /(SDL_Color self, float n);
+SDL_Color operator *(SDL_Color self, float n);
 SDL_Color operator +(SDL_Color a, SDL_Color b);
 bool operator ==(SDL_Color a, SDL_Color b);
 // operators

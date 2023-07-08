@@ -508,7 +508,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:FSDTools"
         "ProductCode" = "8:{E9D0DB3B-4BF6-4A8D-BF5E-67D64506AE1D}"
-        "PackageCode" = "8:{C2D55623-F6F2-4323-875E-6DF8253A8348}"
+        "PackageCode" = "8:{6A433DB7-00A1-43D6-9E29-65A2165CF066}"
         "UpgradeCode" = "8:{B605B96B-F7DE-46BA-93BF-14B777830AB3}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -653,7 +653,7 @@
                                                     "Condition" = "8:"
                                                     "Transitive" = "11:FALSE"
                                                     "ValueTypes" = "3:1"
-                                                    "Value" = "8:\"[TARGETDIR]\\FSDWrite.exe\" %1"
+                                                    "Value" = "8:\"[TARGETDIR]\\FSDWrite.exe\" \"%1\""
                                                     }
                                                 }
                                             }
