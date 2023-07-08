@@ -5,7 +5,7 @@ char tempfile[100];
 
 SDL_Window* window = NULL;
 SDL_Surface* windowSurface = NULL;
-SDL_Surface* img = NULL;
+SDL_Surface* image = NULL;
 
 /// <summary>
 /// Initialize window
@@ -57,7 +57,7 @@ int InitWindow(int w, int h)
 void Quit(int suspend = 0)
 {
     SDL_DestroyWindow(window);
-    SDL_FreeSurface(img);
+    SDL_FreeSurface(image);
     SDL_Quit();
     IMG_Quit();
     if (suspend)
@@ -82,9 +82,10 @@ int main(int argc, char** argv)
         Quit(-1);
         return -1;
     }
-    img = IMG_Load(path.c_str());
+    image = IMG_Load(path.c_str());
 
-    //std::cout << IMG_GetError() << '\n';
+    SDL_Surface* img = SDL_CreateRGBSurface(0, image->w, image->h, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(image, NULL, img, NULL);
 
     if (img == NULL)
     {
