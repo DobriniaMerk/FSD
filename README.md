@@ -17,8 +17,9 @@ Image is saved to disk with almost the most basic and simple algorithm possible 
 
 JPEG / PNG | FSD
 ---|---
-![passage](https://github.com/DobriniaMerk/FSD/assets/93145779/0703ea3f-9b6f-4b5a-b502-fb14955ded40) | ![fsdpssg](https://github.com/DobriniaMerk/FSD/assets/93145779/4f88d57b-faad-459a-9673-ec47acacad42)
-Regular JPEG image with default quality setting of 90, wheighting 216 KB. <br> In PNG format, it weights 1013 KB. | FSD image compressed to 8 colors, weights only 71 KB.
+![passage](https://github.com/DobriniaMerk/FSD/assets/93145779/0703ea3f-9b6f-4b5a-b502-fb14955ded40) | ![fsdpssg](https://github.com/DobriniaMerk/FSD/assets/93145779/f88750d7-d635-44f7-8fab-0994eef7533e)
+
+Regular JPEG image with default quality setting of 90, wheighting 216 KB. <br> In PNG format, it weights 1013 KB. | FSD image compressed to 8 colors, weights only 75 KB.
 
 ## Compiling
 
