@@ -33,6 +33,27 @@ bool operator ==(SDL_Color a, SDL_Color b)
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
 
+std::vector<std::vector<float>> toColorVector(std::vector<SDL_Color> in)
+{
+    std::vector<std::vector<float>> ret(in.size());
+    for (int i = 0; i < in.size(); i++)
+    {
+        ret[i] = std::vector<float>{((float)in[i].r) / 255.0f, ((float)in[i].g) / 255.0f, ((float)in[i].b) / 255.0f };
+    }
+    return ret;
+}
+
+std::vector<SDL_Color> fromColorVector(std::vector<std::vector<float>> in)
+{
+    std::vector<SDL_Color> ret(in.size());
+    for (int i = 0; i < in.size(); i++)
+    {
+        SDL_Color t = { (Uint8)(in[i][0]*255), (Uint8)(in[i][1]*255), (Uint8)(in[i][2]*255) };
+        ret[i] = t;
+    }
+    return ret;
+}
+
 void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel)
 {
     Uint32* const target_pixel = (Uint32*)((Uint8*)surface->pixels + y * surface->pitch + x * surface->format->BytesPerPixel);
@@ -176,12 +197,12 @@ std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> 
 
 
 /// <summary>
-/// Color quantization by clustering (very slow)
+/// Color quantization by clustering
 /// </summary>
 /// <param name="img">Sourse image to take colors out</param>
 /// <param name="colorNum">Number of colors to return</param>
 /// <returns>Color[colorNum]</returns>
-std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)
+std::vector<std::vector<float>> Quantize(SDL_Surface* orig, int colorNum)
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);
@@ -238,7 +259,7 @@ std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)
         std::cout << (int)means[i].r << ", " << (int)means[i].g << ", " << (int)means[i].b << std::endl;
 
 
-    return means;
+    return toColorVector(means);
 }
 
 /// <summary>
@@ -302,13 +323,12 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors)
     return img;
 }
 
-std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
+void Dither(SDL_Surface* orig, std::vector<std::vector<float>> cls)
 {
     SDL_Surface* image = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, image, NULL);
 
-    std::vector<SDL_Color> colors;
-    colors = Quantize(image, colorDepth);
+    std::vector<SDL_Color> colors = fromColorVector(cls);
     Uint32* pixels = (Uint32*)image->pixels;
     auto* format = image->format;
     int w = image->w;
@@ -324,7 +344,6 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
 
             SDL_Color t;
 
-            // broken
             if (x < w - 1)
             {
                 t = (error * (7.0 / 16.0)) + get_pixel(image, x + 1, y);
@@ -346,14 +365,10 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
                 t = (error * (5.0 / 16.0)) + get_pixel(image, x, y + 1);
                 set_pixel(image, x, y + 1, SDL_MapRGB(image->format, t.r, t.g, t.b));
             }
-            // broken
-
         }
     }
 
     SDL_BlitSurface(image, NULL, orig, NULL);
-
-    return colors;
 }
 
 /// <summary>
@@ -361,10 +376,12 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
 /// </summary>
 /// <param name="img">Image to save</param>
 /// <param name="path">Path to saved image</param>
-void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string filename)
+void SaveToFile(SDL_Surface* orig, std::vector<std::vector<float>> cls, std::string filename)
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);
+
+    std::vector<SDL_Color> colors = fromColorVector(cls);
 
     std::ofstream filestream(filename, std::ios::in|std::ios::binary|std::ios::trunc);  // std::ios::trunc is for writing file over instead of appending
     int w = img->w, h = img->h;
