@@ -1,4 +1,4 @@
-﻿#include "Images.h"
+#include "Images.h"
 
 /// <summary>
 /// Color structure with color range of int, not unsigned byte, initially made for diffrence operations.
@@ -61,6 +61,26 @@ bool operator ==(SDL_Color a, SDL_Color b)
     return a.r == b.r && a.g == b.g && a.b == b.b;
 }
 
+std::vector<std::vector<float>> toColorVector(std::vector<SDL_Color> in)
+{
+    std::vector<std::vector<float>> ret(in.size());
+    for (int i = 0; i < in.size(); i++)
+    {
+        ret[i] = std::vector<float>{((float)in[i].r) / 255.0f, ((float)in[i].g) / 255.0f, ((float)in[i].b) / 255.0f };
+    }
+    return ret;
+}
+
+std::vector<SDL_Color> fromColorVector(std::vector<std::vector<float>> in)
+{
+    std::vector<SDL_Color> ret(in.size());
+    for (int i = 0; i < in.size(); i++)
+    {
+        SDL_Color t = { (Uint8)(in[i][0]*255), (Uint8)(in[i][1]*255), (Uint8)(in[i][2]*255) };
+        ret[i] = t;
+    }
+    return ret;
+}
 
 void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel) // stackoverflow's balck magic
 {
@@ -248,7 +268,7 @@ std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)  // transfer to
         std::cout << (int)means[i].r << ", " << (int)means[i].g << ", " << (int)means[i].b << std::endl;
 
 
-    return means;
+    return toColorVector(means);
 }
 
 int GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist)
@@ -305,14 +325,14 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors)
     return img;
 }
 
-std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
+void Dither(SDL_Surface* orig, std::vector<std::vector<float>> cls)
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);
 
-    std::vector<SDL_Color> colors;
+    std::vector<SDL_Color> colors = fromColorVector(cls);
     colors = Quantize(img, colorDepth);
-
+  
     for (int y = 0; y < img->h; y++)
     {
         for (int x = 0; x < img->w; x++)
@@ -346,16 +366,16 @@ std::vector<SDL_Color> Dither(SDL_Surface* orig, int colorDepth)
             }
         }
     }
-
-    SDL_BlitSurface(img, NULL, orig, NULL);
-
-    return colors;
+  
+    SDL_BlitSurface(image, NULL, orig, NULL);
 }
 
 void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string filename)
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);
+
+    std::vector<SDL_Color> colors = fromColorVector(cls);
 
     std::ofstream filestream(filename, std::ios::in|std::ios::binary|std::ios::trunc);  // std::ios::trunc is for writing file over instead of appending
     int w = img->w, h = img->h;

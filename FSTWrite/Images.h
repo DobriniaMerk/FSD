@@ -10,6 +10,9 @@ bool operator ==(SDL_Color a, SDL_Color b);
 
 
 // inner methods
+
+std::vector<std::vector<float>> toColorVector(std::vector<SDL_Color> in);
+std::vector<SDL_Color> fromColorVector(std::vector<std::vector<float>> in);
 void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel);
 SDL_Color get_pixel(SDL_Surface* surface, int x, int y);
 int clamp(int val, int min = 0, int max = 255);
@@ -31,14 +34,6 @@ std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum);
 std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> _colors);
 
 /// <summary>
-/// Color quantization by k-means clustering
-/// </summary>
-/// <param name="img">Sourse image to take colors out</param>
-/// <param name="colorNum">Number of colors to return</param>
-/// <returns></returns>
-std::vector<SDL_Color> Quantize(SDL_Surface* img, int colorNum);
-
-/// <summary>
 /// Searchs nearest but not farther than maxDist color to color in search array
 /// </summary>
 /// <param name="color">Base color</param>
@@ -54,17 +49,27 @@ int GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist);
 /// <param name="colors"></param>
 /// <returns></returns>
 SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors);
+
 // inner methods
 
 
+// for public use
+
 /// <summary>
-/// Redraws input surface using only fixed amount of colors with Floyd-Steinberg dithering algorithm.
-/// Note that redrawn surface is not returned, instead the one inputted will be changed.
+/// Draws image with colors suppied only.
+/// Important: This method rewrites the image, not returns a copy.
 /// </summary>
-/// <param name="orig">Surface to redraw, will be changed</param>
-/// <param name="colorDepth">Number of colors to use, must be a power of 2  and no larger then 256</param>
-/// <returns>Vector containing chosen colors with wich the image is redrawn</returns>
-std::vector<SDL_Color> Dither(SDL_Surface* image, int colorDepth);
+/// <param name="image"></param>
+/// <param name="colors"></param>
+void Dither(SDL_Surface* image, std::vector<std::vector<float>> colors);
+
+/// <summary>
+/// Color quantization by k-means clustering
+/// </summary>
+/// <param name="img">Sourse image to take colors out</param>
+/// <param name="colorNum">Number of colors to return</param>
+/// <returns></returns>
+std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum);
 
 /// <summary>
 /// Save image in a FSD format to provided path, additionally compressing it with zpaq.

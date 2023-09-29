@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <fstream>
 #include <vector>
 
@@ -23,4 +24,5 @@
 
 void decompress(std::string source, std::string dest);
 std::string getFile();
+std::string getNewFile(std::string extention);
 SDL_Surface* readImage(std::string path);
