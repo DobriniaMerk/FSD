@@ -1,4 +1,4 @@
-﻿#include "Images.h"
+#include "Images.h"
 #include "Files.h"
 
 char tempfile[100];
@@ -10,6 +10,7 @@ SDL_Surface* drawImage = NULL;
 SDL_Texture* texture = NULL;
 
 SDL_Surface* image = NULL;
+
 
 /// <summary>
 /// Initialize window
@@ -267,7 +268,6 @@ int main(int argc, char** argv)
         }
         
     }
-
     Quit();
     return 0;
 }
