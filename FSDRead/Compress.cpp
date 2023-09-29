@@ -164,3 +164,37 @@ std::string getFile()
     }
     return s;
 }
+
+std::string getNewFile(std::string extention = ".FSD")
+{
+    // common dialog box structure, setting all fields to 0 is important
+    OPENFILENAME ofn = { 0 };
+    TCHAR szFile[260] = { 0 };
+    // Initialize remaining fields of OPENFILENAME structure
+    ofn.lStructSize = sizeof(ofn);
+    ofn.lpstrFile = szFile;
+    ofn.nMaxFile = sizeof(szFile);
+
+    // black magic begin
+    std::string filter = "\0*" + extention + "\0\0";
+    ofn.lpstrFilter = std::wstring(filter.begin(), filter.end()).c_str();
+    // black magic end
+
+    ofn.nFilterIndex = 1;
+    ofn.lpstrFileTitle = NULL;
+    ofn.nMaxFileTitle = 0;
+    ofn.lpstrInitialDir = NULL;
+    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ofn.FlagsEx = OFN_EX_NOPLACESBAR; // makes things work but look XP
+
+    std::string s = "";
+
+    if (GetSaveFileName(&ofn) == TRUE)
+    {
+        s = (std::string)CW2A(ofn.lpstrFile);
+        //if (s[s.size() - 4] != '.')  // old version
+        if(!std::equal(extention.rbegin(), extention.rend(), s.rbegin()))
+            s += extention;
+    }
+    return s;
+}
