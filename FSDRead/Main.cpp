@@ -1,202 +1,194 @@
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <iterator>
-#include <windows.h>
-#include <string.h>
+#include "Compress.h"
 
-// zpaq
-#include "libzpaq.h"
-#include <stdio.h>
-#include <stdlib.h>
-// zpaq
+#include <SDL_image.h>
+
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_sdlrenderer2.h"
 
 #define _CRT_SECURE_NO_WARNINGS
 
-sf::Image ReadFile(std::string);
-std::wstring getFile();
-char tempfile[100];
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+SDL_Surface* image = NULL;
+SDL_Texture* texture = NULL;
 
+/// <summary>
+/// Initialize window
+/// </summary>
+/// <param name="w">Window width</param>
+/// <param name="h">Window height</param>
+/// <returns></returns>
 
-std::ifstream filein;
-std::ofstream fileout;
-
-void libzpaq::error(const char* msg)  // print message and exit
+int InitIMG(int imgflags)
 {
-    fprintf(stderr, "Oops: %s\n", msg);
-    exit(1);
+	int t = IMG_Init(imgflags);
+	if ((t & imgflags) != imgflags)
+	{
+		std::cout << "Something terrible has happened!\nIMG_Init says: " << IMG_GetError() << '\n';
+		return 1;
+	}
+	return 0;
 }
 
-class In : public libzpaq::Reader
+int InitImGui()
 {
-public:
-    int offset = 0;
-    int get() {
-        unsigned char t;
-        if (!filein.eof())
-        {
-            filein.seekg(offset++);
-            filein.read((char*)&t, 1);
-            return t;
-        }
+	ImGui::CreateContext();
 
-        return -1;
-    }  // returns byte 0..255 or -1 at EOF
-} in;
+	ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
+	ImGui_ImplSDLRenderer2_Init(renderer);
 
-class Out : public libzpaq::Writer
+	return 0;
+}
+
+int InitSDL(int w, int h)
 {
-public:
-    void put(int c) {
-        unsigned char t = c;
-        fileout.write((char*)&t, 1);
-    }  // writes 1 byte 0..255
-} out;
+	if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
+	{
+		std::cout << "Failed to initialize SDL";
+		return 1;
+	}
+
+	window = SDL_CreateWindow("FSD Reader", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+
+	if (window == NULL)
+	{
+		std::cout << "Failed to create window";
+		return 1;
+	}
+
+	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+
+	if (renderer == NULL)
+	{
+		std::cout << "Failed to create renderer";
+		return 1;
+	}
+
+	return 0;
+}
+
+int InitWindow(int w, int h)
+{
+	if (InitSDL(w, h))
+		return 1;
+	InitImGui();
+	return 0;
+}
+
+void Quit()
+{
+	SDL_FreeSurface(image);
+	SDL_DestroyWindow(window);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyTexture(texture);
+
+	ImGui_ImplSDLRenderer2_Shutdown();
+	ImGui_ImplSDL2_Shutdown();
+	ImGui::DestroyContext();
+
+	SDL_Quit();
+	IMG_Quit();
+}
 
 int main(int argc, char** argv)
 {
-    sf::String filename;
-    tmpnam_s(tempfile, 100);
+	std::string path = "";
+	bool open = argc > 1; // if argc > 1: open imege immediately; else: wait for user to open
 
-    for (int i = 0; i < argc; i++)
-        std::cout << argv[i];
+	if (argc > 1)
+		path = argv[1];
 
-    if (argc > 1)
-    {
-        std::string f = argv[1];
-        filename = f;
-    }
-    else
-        filename = getFile();
-    
-    filein = std::ifstream(filename.toAnsiString(), std::ios::in | std::ios::binary);
-    fileout = std::ofstream(tempfile, std::ios::out | std::ios::binary | std::ios::trunc);
+	if (InitWindow(800, 600))
+	{
+		std::cout << "Failed to initialize window";
+		return 1;
+	}
 
-    libzpaq::decompress(&in, &out);
+	if (InitIMG(IMG_INIT_PNG | IMG_INIT_JPG))
+	{
+		std::cout << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
+		Quit();
+		return -1;
+	}
 
-    sf::Image img = ReadFile(tempfile);
+	bool quit = false;
+	while (!quit)
+	{
+		// event processing
+		SDL_Event e;
+		while (SDL_PollEvent(&e))
+		{
+			ImGui_ImplSDL2_ProcessEvent(&e);
 
-    sf::Image out_img;
-    out_img.create(img.getSize().x, img.getSize().y / 1.2, sf::Color::Red);
-    for (int i = 0; i < out_img.getSize().x * out_img.getSize().y; i++)
-    {
-        int x = i % out_img.getSize().x;
-        int y = i / out_img.getSize().x;
-
-        out_img.setPixel(x, y, img.getPixel(x, y));
-    }
-
-    sf::RenderWindow window(sf::VideoMode(out_img.getSize().x, out_img.getSize().y), "FSD Reader");
-
-    sf::Texture t;
-    t.loadFromImage(out_img);
-    sf::Sprite s;
-    s.setTexture(t);
-
-    while (window.isOpen())
-    {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
-        window.clear();
-        window.draw(s);
-        window.display();
-    }
-
-    return 0;
-}
-
-sf::Image ReadFile(std::string filename = "out.fsd")
-{
-    sf::Image img;
-    std::ifstream file(filename, std::ios::in | std::ios::binary);
-    unsigned int x, y;
-    unsigned char colornum;
+			switch (e.type)
+			{
+			case SDL_QUIT:
+				quit = true;
+				break;
+			}
+		}
 
 
-    file.read((char*)&x, sizeof(unsigned int));
-    file.read((char*)&y, sizeof(unsigned int));        // get image x and y size
-    file.read((char*)&colornum, sizeof(char));                // number of colors
-    img.create(x, y, sf::Color(255, 0, 0));  // filled with red for debugging
+		// render image before interface
+		SDL_RenderClear(renderer);
+		SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-    std::cout << "-------------------" << std::endl;
-    std::cout << "X: " << x << " Y: " << y << std::endl << "Number of colors: " << (int)colornum << std::endl;
-    std::cout << "-------------------" << std::endl;
+		// imgui
+		{
+			ImGui_ImplSDLRenderer2_NewFrame();
+			ImGui_ImplSDL2_NewFrame();
+			ImGui::NewFrame();
 
+			if (ImGui::BeginMainMenuBar())
+			{
+				if (ImGui::BeginMenu("File"))
+				{
+					if (ImGui::MenuItem("Open"))
+					{
+						path = getFile();
+						open = true;
+					}
+					if (ImGui::BeginMenu("Save as..."))
+					{
+						if (ImGui::MenuItem("png"))
+						{
+							std::string path = getNewFile(".png");
+							IMG_SavePNG(image, path.c_str());
+						}
+						if (ImGui::MenuItem("jpg"))
+						{
+							std::string path = getNewFile(".jpg");
+							int quality = 88;
+							IMG_SaveJPG(image, path.c_str(), quality);
+						}
+						ImGui::EndMenu();
+					}
+					ImGui::EndMenu();
+				}
+				ImGui::EndMainMenuBar();
+			}
 
-    std::vector<sf::Color> colors;
+			ImGui::Render();
+			ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+			SDL_RenderPresent(renderer);
+		}
 
-    for (int i = 0; i < colornum; i++)
-    {
-        unsigned char r, g, b;
-        file.read((char*)&r, sizeof(char));
-        file.read((char*)&g, sizeof(char));
-        file.read((char*)&b, sizeof(char));
-        std::cout << (int)r << ", " << (int)g << ", " << (int)b << std::endl;
-        colors.push_back(sf::Color(r, g, b));
-    }
+		if(open)
+		{
+			char tempfile[100];
+			tmpnam_s(tempfile, 100);
 
-    std::cout << "-------------------" << std::endl;
+			decompress(path, tempfile);
+			image = readImage(tempfile);
 
-    unsigned int n = 0;
-    sf::Color writeColor;
+			SDL_SetWindowSize(window, image->w, image->h);
+			texture = SDL_CreateTextureFromSurface(renderer, image);
 
-    while (n < y * x)
-    {
-        if (file.eof())
-            break;
+			open = false;
+		}
+	}
 
-        unsigned char num = 0, code = 0;
-        file.read((char*)&num, sizeof(char));
-        file.read((char*)&code, sizeof(char));
-        writeColor = colors[code];
-
-        for (int i = 0; i < num; i++)
-        {
-            img.setPixel(n % x, n / x, writeColor);
-            n++;
-        }
-
-    }
-
-    std::cout << n <<' ' << x * y;
-
-    file.close();
-
-    return img;
-}
-
-std::wstring getFile()
-{
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"FSD Image\0 *.FSD\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    std::string s = "";
-    std::wstring empty(s.begin(), s.end());
-
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
-        return ws;
-    }
-    return empty;
+	
+	return 0;
 }

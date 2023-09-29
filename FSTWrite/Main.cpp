@@ -1,172 +1,274 @@
-﻿#include "Utils.cpp"
-#include <iostream>
-#include <windows.h>
-#include <string.h>
+#include "Images.h"
+#include "Files.h"
 
-// zpaq
-#include "libzpaq.h"
-#include <stdio.h>
-#include <stdlib.h>
-// zpaq
-
-std::wstring getFile();
-std::wstring getFolder();
-
-
-std::ifstream filein;
-std::ofstream fileout;
-sf::String savefolder;  // folder to save final image in; only ASCII symbols
 char tempfile[100];
 
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
 
-void libzpaq::error(const char* msg)  // print message and exit
+SDL_Surface* drawImage = NULL;
+SDL_Texture* texture = NULL;
+
+SDL_Surface* image = NULL;
+
+
+/// <summary>
+/// Initialize window
+/// </summary>
+/// <param name="w">Window width</param>
+/// <param name="h">Window height</param>
+/// <returns></returns>
+
+int InitIMG(int imgflags)
 {
-	fprintf(stderr, "Oops: %s\n", msg);
-	exit(1);
+    int t = IMG_Init(imgflags);
+    if ((t & imgflags) != imgflags)
+    {
+        std::cout << "Something terrible has happened!\nIMG_Init says: " << IMG_GetError() << '\n';
+        return 1;
+    }
+    return 0;
 }
 
-class In : public libzpaq::Reader
+int InitSDLWindow(int w, int h)
 {
-public:
-    int offset = 0;
-	int get() {
-		unsigned char t;
-		if (!filein.eof())
-		{
-            filein.seekg(offset++);
-			filein.read((char*)&t, 1);
-			return t;
-		}
-
-		return -1;
-	}  // returns byte 0..255 or -1 at EOF
-} in;
-
-class Out : public libzpaq::Writer
-{
-public:
-	void put(int c) {
-        unsigned char t = c;
-        fileout.write((char*)&t, 1);
-    }  // writes 1 byte 0..255
-} out;
-
-int main()
-{
-    sf::String filename = getFile();   // file to process; only ASCII symbols in path
-    tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
-
-    sf::Image img;
-    img.loadFromFile(filename.toAnsiString()); // load it
-
-
-    int colornum;
-    std::cout << "Input number of colors (must be a power of 2 and no more than 256): ";
-    std::cin >> colornum;
-
-    std::vector<sf::Color> colors = ImageDithering::Utils::Dither(img, colornum);
-
-    sf::RenderWindow window(sf::VideoMode(img.getSize().x, img.getSize().y / 1.2), "Final Image", sf::Style::Close);
-    sf::Texture t;
-    t.loadFromImage(img);
-    sf::Sprite s;
-    s.setTexture(t);
-
-    while (window.isOpen())
+    if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
+        std::cout << "Failed to initialize SDL";
+        return 1;
+    }
 
-            if (event.type == sf::Event::MouseButtonPressed)
-            {
-                savefolder = getFolder();
-                std::cout << "temporary file name: " << tempfile << "\n";
+    window = SDL_CreateWindow("Convert to FSD", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w, h, SDL_WINDOW_SHOWN);
 
-                std::cout << "savefolder: " << savefolder.toAnsiString() << "\n";
+    if (window == NULL)
+    {
+        std::cout << "Failed to create window";
+        return 1;
+    }
 
-                ImageDithering::Utils::SaveToFile(img, colors, tempfile);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
 
-                fileout = std::ofstream(savefolder.toAnsiString(), std::ios::out | std::ios::binary | std::ios::trunc);
-                filein = std::ifstream(tempfile, std::ios::in | std::ios::binary);
-
-                libzpaq::compress(&in, &out, "53,180,0");  // "0".."5" = faster..better
-
-                window.close();
-            }
-        }
-
-        window.clear();
-        window.draw(s);
-        window.display();
+    if (renderer == NULL)
+    {
+        std::cout << "Failed to create renderer";
+        return 1;
     }
 
     return 0;
 }
 
-std::wstring getFile()
+int InitImGui()
 {
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"Image\0*.JPEG;*.JPG;*.PNG;*.BMP;*.TGA;*.PSD;*.HDR;*.PIC\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ImGui::CreateContext();
 
-    std::string s = "";
-    std::wstring empty(s.begin(), s.end());
+    ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
+    ImGui_ImplSDLRenderer2_Init(renderer);
 
-    if (GetOpenFileName(&ofn) == TRUE)
-    {
-        std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
-        return ws;
-    }
-    return empty;
+    return 0;
 }
 
-std::wstring getFolder()
+int InitWindow(int w, int h)
 {
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"FSD Image\0*.fsd\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    if (InitSDLWindow(w, h))
+        return 1;
+    InitImGui();
+    return 0;
+}
 
-    std::string s = "";
-    std::wstring empty(s.begin(), s.end());
+void Quit(int suspend = 0)
+{
+    SDL_DestroyWindow(window);
+    SDL_FreeSurface(image);
+    SDL_FreeSurface(drawImage);
+    SDL_DestroyTexture(texture);
 
-    if (GetSaveFileName(&ofn) == TRUE)
+    ImGui_ImplSDLRenderer2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_Quit();
+    IMG_Quit();
+
+    if (suspend)
+        system("pause");
+}
+
+void DitherAndDraw(std::vector<std::vector<float>> colors)
+{
+    drawImage = SDL_CreateRGBSurface(0, image->w, image->h, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(image, NULL, drawImage, NULL);
+    Dither(drawImage, colors);
+    texture = SDL_CreateTextureFromSurface(renderer, drawImage);
+}
+
+void Sep()
+{
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+}
+
+int main(int argc, char** argv)
+{
+    std::string path = "";
+    if (argc > 1)
+        path = argv[1];
+
+    if (InitIMG(IMG_INIT_PNG | IMG_INIT_JPG))
     {
-        std::wstring ws(ofn.lpstrFile);
-        std::wcout << ws << std::endl;
+        std::cout << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
+        Quit(-1);
+        return -1;
+    }
 
-        if (ws[ws.size() - 4] != '.')  // if saving is broken, it is because of this block
+    if (InitWindow(800, 600))
+    {
+        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely, some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
+        std::cout << "In that case, if you will restart the program, all likely shall be well";
+        Quit();
+        return -3;
+    }
+
+    ImGuiIO& io = ImGui::GetIO();
+
+    int colornum = 8;
+    bool quit = false;
+    bool colorPanel = false;  // windows open
+    bool quantizeDither = true;  // options
+
+    std::vector<std::vector<float>> colors(colornum, std::vector<float>(3, 0));
+
+    while (!quit)
+    {
+        // event processing
+        SDL_Event e;
+        while (SDL_PollEvent(&e))
         {
-            ws.push_back('.');
-            ws.push_back('f');
-            ws.push_back('s');
-            ws.push_back('d');
+            ImGui_ImplSDL2_ProcessEvent(&e);
+
+            switch (e.type)
+            {
+                // TODO: Add shortcuts from menu items
+            case SDL_QUIT:
+                quit = true;
+                break;
+            }
         }
 
-        return ws;
+        // render image before interface
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+        // imgui
+        {
+            ImGui_ImplSDLRenderer2_NewFrame();
+            ImGui_ImplSDL2_NewFrame();
+            ImGui::NewFrame();
+
+            if (ImGui::BeginMainMenuBar())
+            {
+                if (ImGui::BeginMenu("File"))
+                {
+                    if (ImGui::MenuItem("Open", "Ctrl+O"))
+                    {
+                        path = getFile();
+                    }
+
+                    if (ImGui::MenuItem("Save", "Ctrl+S"))
+                    {
+                        std::string savefolder = getNewFile();
+                        tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
+                        SaveToFile(drawImage, colors, tempfile);
+                        compress(tempfile, savefolder);
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+                // color management menu
+                if (ImGui::BeginMenu("Colors"))
+                {
+                    if (ImGui::MenuItem("Manage"))
+                        colorPanel = true;
+
+                    // TODO: implement saving and loading presets from file
+                    if (ImGui::BeginMenu("Presets"))
+                    {
+                        if (ImGui::MenuItem("None"))
+                        {
+
+                        }
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::MenuItem("Dither!", "Ctrl+D"))
+                {
+                    DitherAndDraw(colors);
+                }
+
+                ImGui::EndMainMenuBar();
+            }
+
+
+            if (colorPanel)
+            {
+                ImGui::Begin("Color panel", &colorPanel);
+
+                ImGui::InputInt("Number of colors", &colornum);
+
+                for (int i = 0; i < colornum; i++)
+                {
+                    if (i >= colors.size())
+                        colors.push_back(std::vector<float>{0, 0, 0});
+                    ImGui::ColorEdit3(("color #" + std::to_string(i)).c_str(), &colors[i][0]);
+                }
+
+                Sep();
+
+                // Disable the dithering button if colornum is not a power of 2.
+                // Current implementation of Quantize doesnt support other numbers because of QuantizeMedian method
+                bool disable = false;
+                if (colornum & (colornum - 1) || image == NULL)
+                {
+                    ImGui::Text(image == NULL ? "No image yet selected" : "Quantization only works if number of colors is a power of 2");
+                    ImGui::BeginDisabled();
+                    disable = true;
+                }
+
+                if (ImGui::Button("Quantize", ImVec2(ImGui::GetWindowSize().x - 20, 60)))
+                {
+                    colors = Quantize(image, colornum);
+                    if (quantizeDither)
+                        DitherAndDraw(colors);
+                }
+
+                if (disable)
+                    ImGui::EndDisabled();
+
+                ImGui::Checkbox("Dither after quantizing", &quantizeDither);
+
+                ImGui::End();
+            }
+
+
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+            SDL_RenderPresent(renderer);
+        }
+
+        if (path != "")
+        {
+            image = IMG_Load(path.c_str());
+            SDL_SetWindowSize(window, image->w, image->h);
+            texture = SDL_CreateTextureFromSurface(renderer, image);
+
+            path = "";
+        }
+        
     }
-    return empty;
+    Quit();
+    return 0;
 }
+
