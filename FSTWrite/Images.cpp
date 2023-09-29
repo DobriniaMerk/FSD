@@ -217,7 +217,7 @@ std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> 
     return ret;
 }
 
-std::vector<SDL_Color> Quantize(SDL_Surface* orig, int colorNum)  // transfer to Files.cpp?
+std::vector<std::vector<float>> Quantize(SDL_Surface* orig, int colorNum)  // transfer to Files.cpp?
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);
@@ -331,7 +331,6 @@ void Dither(SDL_Surface* orig, std::vector<std::vector<float>> cls)
     SDL_BlitSurface(orig, NULL, img, NULL);
 
     std::vector<SDL_Color> colors = fromColorVector(cls);
-    colors = Quantize(img, colorDepth);
   
     for (int y = 0; y < img->h; y++)
     {
@@ -367,10 +366,10 @@ void Dither(SDL_Surface* orig, std::vector<std::vector<float>> cls)
         }
     }
   
-    SDL_BlitSurface(image, NULL, orig, NULL);
+    SDL_BlitSurface(img, NULL, orig, NULL);
 }
 
-void SaveToFile(SDL_Surface* orig, std::vector<SDL_Color> colors, std::string filename)
+void SaveToFile(SDL_Surface* orig, std::vector<std::vector<float>> cls, std::string filename)
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);

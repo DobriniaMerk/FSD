@@ -76,4 +76,4 @@ std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum);
 /// </summary>
 /// <param name="img">Image to save</param>
 /// <param name="path">Path to saved image</param>
-void SaveToFile(SDL_Surface* img, std::vector<SDL_Color> colors, std::string filename);
+void SaveToFile(SDL_Surface* img, std::vector<std::vector<float>> colors, std::string filename);
