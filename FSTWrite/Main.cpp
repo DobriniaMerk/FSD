@@ -9,7 +9,6 @@ SDL_Renderer* renderer = NULL;
 SDL_Surface* drawImage = NULL;
 SDL_Texture* texture = NULL;
 
-SDL_Surface* windowSurface = NULL;
 SDL_Surface* image = NULL;
 
 /// <summary>
@@ -159,103 +158,104 @@ int main(int argc, char** argv)
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
 
-        // begin imgui code
-        ImGui_ImplSDLRenderer2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-
-        if (ImGui::BeginMainMenuBar())
+        // imgui
         {
-            if (ImGui::BeginMenu("File"))
+            ImGui_ImplSDLRenderer2_NewFrame();
+            ImGui_ImplSDL2_NewFrame();
+            ImGui::NewFrame();
+
+            if (ImGui::BeginMainMenuBar())
             {
-                if (ImGui::MenuItem("Open", "Ctrl+O"))
+                if (ImGui::BeginMenu("File"))
                 {
-                    path = getFile();
-                }
-
-                if (ImGui::MenuItem("Save", "Ctrl+S"))
-                {
-                    std::string savefolder = getNewFile();
-                    tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
-                    SaveToFile(drawImage, colors, tempfile);
-                    compress(tempfile, savefolder);
-                }
-
-                ImGui::EndMenu();
-            }
-
-            // color management menu
-            if (ImGui::BeginMenu("Colors"))
-            {
-                if (ImGui::MenuItem("Manage"))
-                    colorPanel = true;
-
-                // TODO: implement saving and loading presets from file
-                if (ImGui::BeginMenu("Presets"))
-                {
-                    if (ImGui::MenuItem("None"))
+                    if (ImGui::MenuItem("Open", "Ctrl+O"))
                     {
+                        path = getFile();
+                    }
 
+                    if (ImGui::MenuItem("Save", "Ctrl+S"))
+                    {
+                        std::string savefolder = getNewFile();
+                        tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
+                        SaveToFile(drawImage, colors, tempfile);
+                        compress(tempfile, savefolder);
+                    }
+
+                    ImGui::EndMenu();
+                }
+
+                // color management menu
+                if (ImGui::BeginMenu("Colors"))
+                {
+                    if (ImGui::MenuItem("Manage"))
+                        colorPanel = true;
+
+                    // TODO: implement saving and loading presets from file
+                    if (ImGui::BeginMenu("Presets"))
+                    {
+                        if (ImGui::MenuItem("None"))
+                        {
+
+                        }
+                        ImGui::EndMenu();
                     }
                     ImGui::EndMenu();
                 }
-                ImGui::EndMenu();
-            }
 
-            if (ImGui::MenuItem("Dither!", "Ctrl+D"))
-            {
-                DitherAndDraw(colors);
-            }
-
-            ImGui::EndMainMenuBar();
-        }
-
-
-        if (colorPanel)
-        {
-            ImGui::Begin("Color panel", &colorPanel);
-
-            ImGui::InputInt("Number of colors", &colornum);
-
-            for (int i = 0; i < colornum; i++)
-            {
-                if (i >= colors.size())
-                    colors.push_back(std::vector<float>{0, 0, 0});
-                ImGui::ColorEdit3(("color #" + std::to_string(i)).c_str(), &colors[i][0]);
-            }
-
-            Sep();
-
-            // Disable the dithering button if colornum is not a power of 2.
-            // Current implementation of Quantize doesnt support other numbers because of QuantizeMedian method
-            bool disable = false;
-            if (colornum & (colornum - 1) || image == NULL)
-            {
-                ImGui::Text(image == NULL ? "No image yet selected" : "Quantization only works if number of colors is a power of 2");
-                ImGui::BeginDisabled();
-                disable = true;
-            }
-
-            if (ImGui::Button("Quantize", ImVec2(ImGui::GetWindowSize().x - 20, 60)))
-            {
-                colors = Quantize(image, colornum);
-                if(quantizeDither)
+                if (ImGui::MenuItem("Dither!", "Ctrl+D"))
+                {
                     DitherAndDraw(colors);
+                }
+
+                ImGui::EndMainMenuBar();
             }
 
-            if (disable)
-                ImGui::EndDisabled();
 
-            ImGui::Checkbox("Dither after quantizing", &quantizeDither);
+            if (colorPanel)
+            {
+                ImGui::Begin("Color panel", &colorPanel);
 
-            ImGui::End();
+                ImGui::InputInt("Number of colors", &colornum);
+
+                for (int i = 0; i < colornum; i++)
+                {
+                    if (i >= colors.size())
+                        colors.push_back(std::vector<float>{0, 0, 0});
+                    ImGui::ColorEdit3(("color #" + std::to_string(i)).c_str(), &colors[i][0]);
+                }
+
+                Sep();
+
+                // Disable the dithering button if colornum is not a power of 2.
+                // Current implementation of Quantize doesnt support other numbers because of QuantizeMedian method
+                bool disable = false;
+                if (colornum & (colornum - 1) || image == NULL)
+                {
+                    ImGui::Text(image == NULL ? "No image yet selected" : "Quantization only works if number of colors is a power of 2");
+                    ImGui::BeginDisabled();
+                    disable = true;
+                }
+
+                if (ImGui::Button("Quantize", ImVec2(ImGui::GetWindowSize().x - 20, 60)))
+                {
+                    colors = Quantize(image, colornum);
+                    if (quantizeDither)
+                        DitherAndDraw(colors);
+                }
+
+                if (disable)
+                    ImGui::EndDisabled();
+
+                ImGui::Checkbox("Dither after quantizing", &quantizeDither);
+
+                ImGui::End();
+            }
+
+
+            ImGui::Render();
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+            SDL_RenderPresent(renderer);
         }
-
-
-        ImGui::Render();
-        ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-
-        SDL_RenderPresent(renderer);
 
         if (path != "")
         {
