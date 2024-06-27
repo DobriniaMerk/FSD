@@ -81,7 +81,7 @@ std::string getFile()
     return s;
 }
 
-std::string getNewFile()
+std::string getNewFile(std::string extention)
 {
     // common dialog box structure, setting all fields to 0 is important
     OPENFILENAME ofn = { 0 };
@@ -90,7 +90,12 @@ std::string getNewFile()
     ofn.lStructSize = sizeof(ofn);
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"FSD Image\0*.fsd\0\0";
+
+    // black magic begin
+    std::string filter = "\0*" + extention + "\0\0";
+    ofn.lpstrFilter = std::wstring(filter.begin(), filter.end()).c_str();
+    // black magic end
+
     ofn.nFilterIndex = 1;
     ofn.lpstrFileTitle = NULL;
     ofn.nMaxFileTitle = 0;
@@ -103,8 +108,9 @@ std::string getNewFile()
     if (GetSaveFileName(&ofn) == TRUE)
     {
         s = (std::string)CW2A(ofn.lpstrFile);
-        if (s[s.size() - 4] != '.')  // if saving is broken, it is because of this block
-            s += ".FSD";
+        //if (s[s.size() - 4] != '.')  // old version
+        if (!std::equal(extention.rbegin(), extention.rend(), s.rbegin()))
+            s += extention;
     }
     return s;
 }

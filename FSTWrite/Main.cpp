@@ -174,12 +174,28 @@ int main(int argc, char** argv)
                         path = getFile();
                     }
 
-                    if (ImGui::MenuItem("Save", "Ctrl+S"))
+                    if (ImGui::MenuItem("Save FSD", "Ctrl+S"))
                     {
                         std::string savefolder = getNewFile();
                         tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
                         SaveToFile(drawImage, colors, tempfile);
                         compress(tempfile, savefolder);
+                    }
+
+                    if (ImGui::BeginMenu("Save as..."))
+                    {
+                        if (ImGui::MenuItem("png"))
+                        {
+                            std::string path = getNewFile(".png");
+                            IMG_SavePNG(drawImage, path.c_str());
+                        }
+                        if (ImGui::MenuItem("jpg"))
+                        {
+                            std::string path = getNewFile(".jpg");
+                            int quality = 88;
+                            IMG_SaveJPG(drawImage, path.c_str(), quality);
+                        }
+                        ImGui::EndMenu();
                     }
 
                     ImGui::EndMenu();
