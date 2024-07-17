@@ -108,6 +108,17 @@ void Sep()
     ImGui::Spacing();
 }
 
+bool CheckPath(std::string path)
+{
+    for (int i = 0; i < path.length(); i++)
+    {
+        unsigned char c = char(path[i]);
+        if (c > 127)
+            return false;
+    }
+    return true;
+}
+
 int main(int argc, char** argv)
 {
     std::string path = "";
@@ -131,10 +142,12 @@ int main(int argc, char** argv)
 
     ImGuiIO& io = ImGui::GetIO();
 
+    int init_type = 1;
     int colornum = 8;
     bool quit = false;
     bool colorPanel = false;  // windows open
     bool quantizeDither = true;  // options
+    bool pathWarning = false;
 
     std::vector<std::vector<float>> colors(colornum, std::vector<float>(3, 0));
 
@@ -243,19 +256,21 @@ int main(int argc, char** argv)
 
                 Sep();
 
-                // Disable the dithering button if colornum is not a power of 2.
-                // Current implementation of Quantize doesnt support other numbers because of QuantizeMedian method
+
+                ImGui::Combo("Quantization init method", &init_type, "Median split (reliable, non-random)\0k - means++ (faster, can give better results but random)\0\0");
+
+                // QuantizeMedian method doesnt support numbers other than power of two
                 bool disable = false;
-                if (colornum & (colornum - 1) || image == NULL)
+                if (colornum & (colornum - 1) && !init_type || image == NULL)
                 {
-                    ImGui::Text(image == NULL ? "No image yet selected" : "Quantization only works if number of colors is a power of 2");
+                    ImGui::Text(image == NULL ? "No image yet selected" : "Median split method only works if number of colors is a power of 2");
                     ImGui::BeginDisabled();
                     disable = true;
                 }
 
                 if (ImGui::Button("Quantize", ImVec2(ImGui::GetWindowSize().x - 20, 60)))
                 {
-                    colors = Quantize(image, colornum);
+                    colors = Quantize(image, colornum, init_type);
                     if (quantizeDither)
                         DitherAndDraw(colors);
                 }
@@ -268,6 +283,15 @@ int main(int argc, char** argv)
                 ImGui::End();
             }
 
+            /*if (pathWarning)
+            {
+                ImGui::OpenPopup()
+            }
+            if (ImGui::BeginPopupModal("Invalid file path", &pathWarning))
+            {
+                ImGui::Text("Regrettably the current implementation of file opening does not support characters other than ASCII");
+                ImGui::EndPopup();
+            }*/
 
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
@@ -276,10 +300,14 @@ int main(int argc, char** argv)
 
         if (path != "")
         {
-            image = IMG_Load(path.c_str());
-            SDL_SetWindowSize(window, image->w, image->h);
-            texture = SDL_CreateTextureFromSurface(renderer, image);
-
+            if (CheckPath(path))
+            {
+                image = IMG_Load(path.c_str());
+                SDL_SetWindowSize(window, image->w, image->h);
+                texture = SDL_CreateTextureFromSurface(renderer, image);
+            }
+            else
+                pathWarning = true;
             path = "";
         }
         

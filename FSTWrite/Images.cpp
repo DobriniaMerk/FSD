@@ -113,21 +113,30 @@ float DistanceTo(SDL_Color self, SDL_Color other)  // to get proper distance you
     return (self.r - other.r) * (self.r - other.r) + (self.g - other.g) * (self.g - other.g) + (self.b - other.b) * (self.b - other.b);
 }
 
-std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum)
+std::vector<SDL_Color> SampleColors(SDL_Surface* img, int skip)
 {
-    int skip = 10;
+    // TODO: add smart calculation of skip so the number of colors will not be dependent on image size
+    // TODO: sample more smartly. Maybe choose more of rare colors?
+    std::vector<SDL_Color> ret;
+    int n = 0;
+    for (int i = 0; i < img->w; i += skip)
+        for (int j = 0; j < img->h; j += skip)
+        {
+            SDL_Color c = get_pixel(img, i, j);
+            ret.push_back(c);
+        }
+    return ret;
+}
+
+std::vector <SDL_Color> QuantizeMedian(SDL_Surface* img, int colorNum)
+{
     int filledRows = 1;
 
     std::vector< std::vector<SDL_Color> > oldColors(colorNum);
     std::vector< std::vector<SDL_Color> > newColors(colorNum);
     std::vector< std::vector<SDL_Color> > t;
 
-    for (int i = 0; i < img->w; i += skip)  // set first array of oldColors to img pixels, with interval of skip
-        for (int j = 0; j < img->h; j += skip)
-        {
-            SDL_Color c = get_pixel(img, i, j);
-            oldColors[0].push_back(c);
-        }
+    oldColors[0] = SampleColors(img);
 
     while (filledRows < colorNum)  // while not all colors are done
     {
@@ -217,14 +226,54 @@ std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> 
     return ret;
 }
 
-std::vector<std::vector<float>> Quantize(SDL_Surface* orig, int colorNum)  // transfer to Files.cpp?
+std::vector <SDL_Color> QuantizeWeightedRandom(SDL_Surface* img, int colorNum, bool take_root)
+{
+    std::random_device r;
+    std::mt19937 generator(r());
+
+    std::vector<SDL_Color> colors = SampleColors(img);
+    std::vector<SDL_Color> points;
+    points.push_back(colors[generator() % colors.size()]);
+
+    while (points.size() < colorNum)
+    {
+        std::vector<float> dist(colors.size(), 0);
+        for (int i = 0; i < colors.size(); i++)
+        {
+            for (int j = 0; j < points.size(); j++)
+            {
+                float d = DistanceTo(colors[i], points[j]);
+                dist[i] = d > dist[i] ? d : dist[i];
+            }
+            if (take_root)
+                dist[i] = std::sqrtf(dist[i]);
+        }
+
+        std::discrete_distribution<> pick(dist.begin(), dist.end());
+
+        points.push_back(colors[pick(generator)]);
+    }
+
+    return points;
+}
+
+std::vector<std::vector<float>> Quantize(SDL_Surface* orig, int colorNum, int init_type)  // transfer to Files.cpp?
 {
     SDL_Surface* img = SDL_CreateRGBSurface(0, orig->w, orig->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(orig, NULL, img, NULL);
 
     std::vector<SDL_Color> means(colorNum);
 
-    means = QuantizeMedian(img, colorNum);
+    switch (init_type)
+    {
+    case 0:
+        means = QuantizeMedian(img, colorNum);
+        break;
+    case 1:
+        means = QuantizeWeightedRandom(img, colorNum);
+        break;
+    }
+
     std::vector<SDL_Color> old_means = means;
 
     int imgSize = img->w * img->h;

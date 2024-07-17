@@ -17,6 +17,7 @@ void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel);
 SDL_Color get_pixel(SDL_Surface* surface, int x, int y);
 int clamp(int val, int min = 0, int max = 255);
 float DistanceTo(SDL_Color self, SDL_Color other);
+std::vector<SDL_Color> SampleColors(SDL_Surface* img, int skip = 10);
 
 /// <summary>
 /// Quatization by median cut
@@ -24,7 +25,7 @@ float DistanceTo(SDL_Color self, SDL_Color other);
 /// <param name="img">Source image</param>
 /// <param name="colorNum">Number of colors to return; Must be a power of two</param>
 /// <returns>Array of Color[colorNum]</returns>
-std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum);
+std::vector <SDL_Color> QuantizeMedian(SDL_Surface* img, int colorNum);
 
 /// <summary>
 /// Splits "colors" array in halves by maximum color channel
@@ -32,6 +33,15 @@ std::vector <SDL_Color> QuantizeMedian(SDL_Surface*& img, int colorNum);
 /// <param name="colors">Colors to split</param>
 /// <returns></returns>
 std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> _colors);
+
+
+/// <summary>
+/// Point initialization as in k-means++ method
+/// </summary>
+/// <param name="img">Source image</param>
+/// <param name="colorNum">Number of colors to return</param>
+/// <returns>Array of Color[colorNum]</returns>
+std::vector <SDL_Color> QuantizeWeightedRandom(SDL_Surface* img, int colorNum, bool take_root = true);
 
 /// <summary>
 /// Searchs nearest but not farther than maxDist color to color in search array
@@ -68,8 +78,9 @@ void Dither(SDL_Surface* image, std::vector<std::vector<float>> colors);
 /// </summary>
 /// <param name="img">Sourse image to take colors out</param>
 /// <param name="colorNum">Number of colors to return</param>
+/// <param name="init_type">0: Median split; 1: k-means++</param>
 /// <returns></returns>
-std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum);
+std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum, int init_type);
 
 /// <summary>
 /// Save image in a FSD format to provided path, additionally compressing it with zpaq.
