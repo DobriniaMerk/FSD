@@ -1,7 +1,7 @@
 #pragma once
-#include "Includes.h"
-#include <atlstr.h>
+/* #include "Includes.h" */
+/* #include <atlstr.h> */
 
-std::string getFile();
-std::string getNewFile(std::string extention = ".FSD");
+std::string getImageFile();
+std::string saveFile(std::string extention = ".FSD");
 void compress(std::string source, std::string dest);

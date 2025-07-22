@@ -1,7 +1,7 @@
 #include "Images.h"
 #include "Files.h"
 
-char tempfile[100];
+char tempfile[200];
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
@@ -11,13 +11,6 @@ SDL_Texture* texture = NULL;
 
 SDL_Surface* image = NULL;
 
-
-/// <summary>
-/// Initialize window
-/// </summary>
-/// <param name="w">Window width</param>
-/// <param name="h">Window height</param>
-/// <returns></returns>
 
 int InitIMG(int imgflags)
 {
@@ -70,12 +63,13 @@ int InitImGui()
 int InitWindow(int w, int h)
 {
     if (InitSDLWindow(w, h))
-        return 1;
+      return 1;
+
     InitImGui();
     return 0;
 }
 
-void Quit(int suspend = 0)
+void Quit(bool suspend = false)
 {
     SDL_DestroyWindow(window);
     SDL_FreeSurface(image);
@@ -90,7 +84,7 @@ void Quit(int suspend = 0)
     IMG_Quit();
 
     if (suspend)
-        system("pause");
+      system("pause");
 }
 
 void DitherAndDraw(std::vector<std::vector<float>> colors)
@@ -108,6 +102,7 @@ void Sep()
     ImGui::Spacing();
 }
 
+// checks for non-standard ASCII symbols in path
 bool CheckPath(std::string path)
 {
     for (int i = 0; i < path.length(); i++)
@@ -128,14 +123,14 @@ int main(int argc, char** argv)
     if (InitIMG(IMG_INIT_PNG | IMG_INIT_JPG))
     {
         std::cout << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
-        Quit(-1);
+        Quit(true);
         return -1;
     }
 
     if (InitWindow(800, 600))
     {
-        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely, some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
-        std::cout << "In that case, if you will restart the program, all likely shall be well";
+        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
+        std::cout << "In that case, if you restart the program, all likely shall be well";
         Quit();
         return -3;
     }
@@ -161,7 +156,7 @@ int main(int argc, char** argv)
 
             switch (e.type)
             {
-                // TODO: Add shortcuts from menu items
+                // TODO: Add shortcuts for menu items
             case SDL_QUIT:
                 quit = true;
                 break;
@@ -184,13 +179,13 @@ int main(int argc, char** argv)
                 {
                     if (ImGui::MenuItem("Open", "Ctrl+O"))
                     {
-                        path = getFile();
+                        path = getImageFile();
                     }
 
                     if (ImGui::MenuItem("Save FSD", "Ctrl+S"))
                     {
-                        std::string savefolder = getNewFile();
-                        tmpnam_s(tempfile, 100);  // create temp filename for intermediate result
+                        std::string savefolder = saveFile();
+                        tmpnam(tempfile);  // create temp filename for intermediate result
                         SaveToFile(drawImage, colors, tempfile);
                         compress(tempfile, savefolder);
                     }
@@ -199,12 +194,12 @@ int main(int argc, char** argv)
                     {
                         if (ImGui::MenuItem("png"))
                         {
-                            std::string path = getNewFile(".png");
+                            std::string path = saveFile(".png");
                             IMG_SavePNG(drawImage, path.c_str());
                         }
                         if (ImGui::MenuItem("jpg"))
                         {
-                            std::string path = getNewFile(".jpg");
+                            std::string path = saveFile(".jpg");
                             int quality = 88;
                             IMG_SaveJPG(drawImage, path.c_str(), quality);
                         }
@@ -257,7 +252,7 @@ int main(int argc, char** argv)
                 Sep();
 
 
-                ImGui::Combo("Quantization init method", &init_type, "Median split (reliable, non-random)\0k - means++ (faster, can give better results but random)\0\0");
+                ImGui::Combo("Quantization init method", &init_type, "Median split (consistent, non-random)\0k - means++ (faster, can give better results but random)\0\0");
 
                 // QuantizeMedian method doesnt support numbers other than power of two
                 bool disable = false;
@@ -294,7 +289,7 @@ int main(int argc, char** argv)
             }*/
 
             ImGui::Render();
-            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
+            ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
             SDL_RenderPresent(renderer);
         }
 
@@ -310,9 +305,8 @@ int main(int argc, char** argv)
                 pathWarning = true;
             path = "";
         }
-        
+
     }
     Quit();
     return 0;
 }
-

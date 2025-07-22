@@ -98,7 +98,7 @@ SDL_Color get_pixel(SDL_Surface* surface, int x, int y) // stackoverflow's balck
 
 int clamp(int val, int mn, int mx)
 {
-    return max(mn, min(mx, val));
+    return std::max(mn, std::min(mx, val));
 }
 
 /// <summary>
@@ -361,8 +361,8 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors)
             SDL_Rect rect;
             rect.x = x;
             rect.y = y + h;
-            rect.w = min(blocksize, w - x);
-            rect.h = min(blocksize, img->h - (y + h));
+            rect.w = std::min(blocksize, w - x);
+            rect.h = std::min(blocksize, img->h - (y + h));
             fillRects[t++].push_back(rect);
             t %= colors.size();
         }
@@ -370,7 +370,7 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors)
 
     for(int i = 0; i < colors.size(); i++)
         SDL_FillRects(img, &(fillRects[i][0]), fillRects[i].size(), SDL_MapRGB(img->format, colors[i].r, colors[i].g, colors[i].b));
-    
+
     return img;
 }
 
@@ -380,7 +380,7 @@ void Dither(SDL_Surface* orig, std::vector<std::vector<float>> cls)
     SDL_BlitSurface(orig, NULL, img, NULL);
 
     std::vector<SDL_Color> colors = fromColorVector(cls);
-  
+
     for (int y = 0; y < img->h; y++)
     {
         for (int x = 0; x < img->w; x++)
@@ -414,7 +414,7 @@ void Dither(SDL_Surface* orig, std::vector<std::vector<float>> cls)
             }
         }
     }
-  
+
     SDL_BlitSurface(img, NULL, orig, NULL);
 }
 

@@ -1,9 +1,15 @@
-#include "Files.h"
+#include "libzpaq.h"
+#include "tinyfiledialogs.h"
+#include <fstream>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string>
 
-void libzpaq::error(const char* msg)  // print error message and exit
+
+void libzpaq::error(const char *msg) // print error message and exit
 {
-    fprintf(stderr, "Oops: %s\n", msg);
-    exit(1);
+  fprintf(stderr, "Oops: %s\n", msg);
+  exit(1);
 }
 
 class In : public libzpaq::Reader
@@ -17,7 +23,8 @@ public:
     }
 
     int offset = 0;
-    int get() {
+    int get()
+    {
         unsigned char t;
         if (!readfile->eof())
         {
@@ -40,7 +47,8 @@ public:
         writefile = f;
     }
 
-    void put(int c) {
+    void put(int c)
+    {
         unsigned char t = c;
         writefile->write((char*)&t, 1);
     }  // writes 1 byte 0..255
@@ -52,65 +60,39 @@ void compress(std::string source, std::string dest)
     std::ofstream fileout = std::ofstream(dest, std::ios::out | std::ios::binary | std::ios::trunc);
     In in(&filein);
     Out out(&fileout);
-    libzpaq::compress(&in, &out, "53,180,0");  // "0".."5" = faster..better;  // after half a year of not touching this, "53,180,0" look like some magic numbers 
+    libzpaq::compress(&in, &out, "53,180,0");  // "0".."5" = faster..better;  // after half a year of not touching this, "53,180,0" look like some magic numbers
 }
 
-std::string getFile()
+std::string getImageFile()
 {
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"Image\0*.JPEG;*.JPG;*.PNG;*.BMP;*.TGA;*.PSD;*.HDR;*.PIC\0\0";
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-    ofn.FlagsEx = OFN_EX_NOPLACESBAR; // makes things work but look XP
+    char const* title = "Pick an image";
+    char const* defaultPath = NULL;
+    int patternNum = 3;
+    char const* filterPatterns[3] = {"*.png", "*.jpg", "*.jpeg"};
+    char const* filterDescr = "Image files";
+    int allowMultiple = 0;
 
-    std::string s = "";
+    char* result = tinyfd_openFileDialog(title, defaultPath, patternNum,
+                                         filterPatterns, filterDescr, allowMultiple);
 
-    if (GetOpenFileName(&ofn) == TRUE)
-    {   
-         s = (std::string)CW2A(ofn.lpstrFile);
+    if (result == NULL) {
+        // user canceled
+        return "";
     }
-    return s;
+    return result;
 }
 
-std::string getNewFile(std::string extention)
-{
-    // common dialog box structure, setting all fields to 0 is important
-    OPENFILENAME ofn = { 0 };
-    TCHAR szFile[260] = { 0 };
-    // Initialize remaining fields of OPENFILENAME structure
-    ofn.lStructSize = sizeof(ofn);
-    ofn.lpstrFile = szFile;
-    ofn.nMaxFile = sizeof(szFile);
+std::string saveFile(std::string defaultPath = "") {
+    char const* title = "Save file";
+    int patternNum = 1;
+    char const* filterPatterns[1] = {"*.fsd"};
+    char const* filterDescr = "FSD images";
 
-    // black magic begin
-    std::string filter = "\0*" + extention + "\0\0";
-    ofn.lpstrFilter = std::wstring(filter.begin(), filter.end()).c_str();
-    // black magic end
-
-    ofn.nFilterIndex = 1;
-    ofn.lpstrFileTitle = NULL;
-    ofn.nMaxFileTitle = 0;
-    ofn.lpstrInitialDir = NULL;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-    ofn.FlagsEx = OFN_EX_NOPLACESBAR; // makes things work but look XP
-
-    std::string s = "";
-
-    if (GetSaveFileName(&ofn) == TRUE)
-    {
-        s = (std::string)CW2A(ofn.lpstrFile);
-        //if (s[s.size() - 4] != '.')  // old version
-        if (!std::equal(extention.rbegin(), extention.rend(), s.rbegin()))
-            s += extention;
+    char *result = tinyfd_saveFileDialog(title, defaultPath.data(), patternNum,
+                                         filterPatterns, filterDescr);
+    if (result == NULL) {
+        // user canceled
+        return "";
     }
-    return s;
+    return result;
 }

@@ -1,0 +1,7 @@
+* TODO's
+** Code
+1. Think about duplicate #include's
+2.  Figure out what hack in libzpack around 3020 line i did and if it is needed
+
+** Design
+1. Use image quility metric that is not just staring at images really hard

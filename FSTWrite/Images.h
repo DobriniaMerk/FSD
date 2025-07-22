@@ -43,21 +43,14 @@ std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> 
 /// <returns>Array of Color[colorNum]</returns>
 std::vector <SDL_Color> QuantizeWeightedRandom(SDL_Surface* img, int colorNum, bool take_root = true);
 
-/// <summary>
 /// Searchs nearest but not farther than maxDist color to color in search array
-/// </summary>
 /// <param name="color">Base color</param>
 /// <param name="search">Array for searching in</param>
 /// <param name="maxDist">Maximum distance of nearest color</param>
 /// <returns>Color</returns>
 int GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist);
 
-/// <summary>
 /// Adds debug squares at the bottom of the image (you should not need this if all goes well)
-/// </summary>
-/// <param name="image"></param>
-/// <param name="colors"></param>
-/// <returns></returns>
 SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors);
 
 // inner methods
@@ -65,26 +58,16 @@ SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors);
 
 // for public use
 
-/// <summary>
-/// Draws image with colors suppied only.
+/// Draws image with suppied colors.
 /// Important: This method rewrites the image, not returns a copy.
-/// </summary>
-/// <param name="image"></param>
-/// <param name="colors"></param>
 void Dither(SDL_Surface* image, std::vector<std::vector<float>> colors);
 
-/// <summary>
 /// Color quantization by k-means clustering
-/// </summary>
 /// <param name="img">Sourse image to take colors out</param>
 /// <param name="colorNum">Number of colors to return</param>
 /// <param name="init_type">0: Median split; 1: k-means++</param>
 /// <returns></returns>
 std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum, int init_type);
 
-/// <summary>
 /// Save image in a FSD format to provided path, additionally compressing it with zpaq.
-/// </summary>
-/// <param name="img">Image to save</param>
-/// <param name="path">Path to saved image</param>
 void SaveToFile(SDL_Surface* img, std::vector<std::vector<float>> colors, std::string filename);
