@@ -445,4 +445,4 @@ FodyWeavers.xsd
 *.FSD
 
 imgui.ini
-build/**
+build/

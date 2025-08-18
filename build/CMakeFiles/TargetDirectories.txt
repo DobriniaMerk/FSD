@@ -1,5 +1,0 @@
-/home/anyone/Programming/FSD/build/CMakeFiles/FSDWrite.dir
-/home/anyone/Programming/FSD/build/CMakeFiles/tinyfiledialogs.dir
-/home/anyone/Programming/FSD/build/CMakeFiles/imgui.dir
-/home/anyone/Programming/FSD/build/CMakeFiles/edit_cache.dir
-/home/anyone/Programming/FSD/build/CMakeFiles/rebuild_cache.dir
