@@ -72,7 +72,6 @@ int InitWindow(int w, int h)
 void Quit(bool suspend = false)
 {
     SDL_DestroyWindow(window);
-    SDL_FreeSurface(image);
     SDL_FreeSurface(drawImage);
     SDL_DestroyTexture(texture);
 
@@ -163,9 +162,34 @@ int main(int argc, char** argv)
             }
         }
 
+
         // render image before interface
+        if (path != "")
+        {
+            // if (CheckPath(path))
+            // {
+            //     // for problems with non-ASCII paths
+            // }
+            SDL_FreeSurface(image);
+            image = IMG_Load(path.c_str());
+            SDL_SetWindowSize(window, image->w, image->h);
+            if (texture)
+              SDL_DestroyTexture(texture);
+            texture = SDL_CreateTextureFromSurface(renderer, image);
+            path = "";
+        }
+
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+        if (texture)
+        {
+            SDL_RenderSetViewport(renderer, NULL);
+            SDL_RenderSetLogicalSize(renderer, 0, 0); // disable logical scaling
+            int w, h;
+            SDL_GetWindowSize(window, &w, &h);
+            SDL_Rect destrect = {0, 0, w, h};
+            SDL_RenderCopy(renderer, texture, nullptr, &destrect);
+        }
 
         // imgui
         {
@@ -290,22 +314,9 @@ int main(int argc, char** argv)
 
             ImGui::Render();
             ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), renderer);
-            SDL_RenderPresent(renderer);
         }
 
-        if (path != "")
-        {
-            if (CheckPath(path))
-            {
-                image = IMG_Load(path.c_str());
-                SDL_SetWindowSize(window, image->w, image->h);
-                texture = SDL_CreateTextureFromSurface(renderer, image);
-            }
-            else
-                pathWarning = true;
-            path = "";
-        }
-
+        SDL_RenderPresent(renderer);
     }
     Quit();
     return 0;
