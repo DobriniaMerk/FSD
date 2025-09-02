@@ -1,5 +1,7 @@
-#pragma once
-#include "Includes.h"
+#include <SDL.h>
+#include <string>
+#include <vector>
+
 
 // operators
 SDL_Color operator /(SDL_Color self, float n);

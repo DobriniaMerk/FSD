@@ -1,4 +1,4 @@
-#include "Images.h"
+#include "Images.hpp"
 
 /// <summary>
 /// Color structure with color range of int, not unsigned byte, initially made for diffrence operations.

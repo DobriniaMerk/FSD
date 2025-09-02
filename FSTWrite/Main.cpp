@@ -1,10 +1,12 @@
-#include "Images.h"
-#include "Files.h"
-#include <SDL_rect.h>
-#include <SDL_render.h>
-#include <SDL_surface.h>
-#include <SDL_video.h>
+#include "Images.hpp"
+#include "Files.hpp"
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_sdlrenderer2.h"
+#include <SDL.h>
+#include <SDL_image.h>
 #include <cstddef>
+#include <iostream>
 
 char tempfile[200];
 
@@ -40,7 +42,7 @@ int InitSDLWindow(int w, int h)
 
     if (window == NULL)
     {
-        std::cerr << "Failed to create window";
+        std::cerr << "Failed to create window\n";
         return 1;
     }
 
@@ -48,27 +50,28 @@ int InitSDLWindow(int w, int h)
 
     if (renderer == NULL)
     {
-        std::cerr << "Failed to create renderer";
+        std::cerr << "Failed to create renderer\n";
         return 1;
     }
 
     return 0;
 }
 
-int InitImGui()
+void InitImGui()
 {
     ImGui::CreateContext();
 
     ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
     ImGui_ImplSDLRenderer2_Init(renderer);
-
-    return 0;
 }
 
 int InitWindow(int w, int h)
 {
     if (InitSDLWindow(w, h))
-      return 1;
+    {
+        std::cerr << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely some bytes in the Window object failed to arrange themselves as the Programmer wanted.\nIn that case, if you restart the program, all likely shall be well\n";
+        return 1;
+    }
 
     InitImGui();
     return 0;
@@ -96,6 +99,7 @@ void DitherAndDraw(std::vector<std::vector<float>> colors)
     drawImage = SDL_CreateRGBSurface(0, image->w, image->h, 32, 0, 0, 0, 0);
     SDL_BlitSurface(image, NULL, drawImage, NULL);
     Dither(drawImage, colors);
+    SDL_DestroyTexture(texture);
     texture = SDL_CreateTextureFromSurface(renderer, drawImage);
 }
 
@@ -126,15 +130,12 @@ int main(int argc, char** argv)
 
     if (InitIMG(IMG_INIT_PNG | IMG_INIT_JPG))
     {
-        std::cerr << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
-        Quit(true);
+        Quit();
         return -1;
     }
 
     if (InitWindow(800, 600))
     {
-        std::cerr << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
-        std::cerr << "In that case, if you restart the program, all likely shall be well";
         Quit();
         return -3;
     }
@@ -144,9 +145,9 @@ int main(int argc, char** argv)
     int init_type = 1;
     int colornum = 8;
     bool quit = false;
-    bool colorPanel = false;  // windows open
-    bool quantizeDither = true;  // options
-    bool pathWarning = false;
+    bool colorPanelOpen = false;
+    bool ditherAfterQuantize = true;
+    bool pathWarning = false;  // possibly not needed
 
     std::vector<std::vector<float>> colors(colornum, std::vector<float>(3, 0));
 
@@ -242,7 +243,7 @@ int main(int argc, char** argv)
                 if (ImGui::BeginMenu("Colors"))
                 {
                     if (ImGui::MenuItem("Manage"))
-                        colorPanel = true;
+                        colorPanelOpen = true;
 
                     // TODO: implement saving and loading presets from file
                     if (ImGui::BeginMenu("Presets"))
@@ -265,9 +266,9 @@ int main(int argc, char** argv)
             }
 
 
-            if (colorPanel)
+            if (colorPanelOpen)
             {
-                ImGui::Begin("Color panel", &colorPanel);
+                ImGui::Begin("Color panel", &colorPanelOpen);
 
                 ImGui::InputInt("Number of colors", &colornum);
 
@@ -295,14 +296,14 @@ int main(int argc, char** argv)
                 if (ImGui::Button("Quantize", ImVec2(ImGui::GetWindowSize().x - 20, 60)))
                 {
                     colors = Quantize(image, colornum, init_type);
-                    if (quantizeDither)
+                    if (ditherAfterQuantize)
                         DitherAndDraw(colors);
                 }
 
                 if (disable)
                     ImGui::EndDisabled();
 
-                ImGui::Checkbox("Dither after quantizing", &quantizeDither);
+                ImGui::Checkbox("Dither after quantizing", &ditherAfterQuantize);
 
                 ImGui::End();
             }

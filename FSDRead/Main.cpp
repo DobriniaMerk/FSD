@@ -1,4 +1,4 @@
-#include "Compress.h"
+#include "Compress.hpp"
 
 #include <SDL_image.h>
 
@@ -189,6 +189,6 @@ int main(int argc, char** argv)
 		}
 	}
 
-	
+
 	return 0;
 }

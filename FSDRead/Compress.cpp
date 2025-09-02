@@ -1,4 +1,4 @@
-#include "Compress.h"
+#include "Compress.hpp"
 
 void libzpaq::error(const char* msg)  // print error message and exit
 {
@@ -101,7 +101,7 @@ SDL_Surface* readImage(std::string path)
     unsigned int n = 0;
 
     std::vector<std::vector<SDL_Rect>> fillRects(colornum);  // rects to fill for each color
-    
+
     while (n < y * x)
     {
         if (file.eof())
