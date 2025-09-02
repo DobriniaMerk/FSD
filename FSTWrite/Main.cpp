@@ -1,5 +1,10 @@
 #include "Images.h"
 #include "Files.h"
+#include <SDL_rect.h>
+#include <SDL_render.h>
+#include <SDL_surface.h>
+#include <SDL_video.h>
+#include <cstddef>
 
 char tempfile[200];
 
@@ -17,7 +22,7 @@ int InitIMG(int imgflags)
     int t = IMG_Init(imgflags);
     if ((t & imgflags) != imgflags)
     {
-        std::cout << "Something terrible has happened!\nIMG_Init says: " << IMG_GetError() << '\n';
+        std::cerr << "Something terrible has happened!\nIMG_Init says: " << IMG_GetError() << '\n';
         return 1;
     }
     return 0;
@@ -27,7 +32,7 @@ int InitSDLWindow(int w, int h)
 {
     if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS))
     {
-        std::cout << "Failed to initialize SDL";
+        std::cerr << "Failed to initialize SDL";
         return 1;
     }
 
@@ -35,7 +40,7 @@ int InitSDLWindow(int w, int h)
 
     if (window == NULL)
     {
-        std::cout << "Failed to create window";
+        std::cerr << "Failed to create window";
         return 1;
     }
 
@@ -43,7 +48,7 @@ int InitSDLWindow(int w, int h)
 
     if (renderer == NULL)
     {
-        std::cout << "Failed to create renderer";
+        std::cerr << "Failed to create renderer";
         return 1;
     }
 
@@ -121,15 +126,15 @@ int main(int argc, char** argv)
 
     if (InitIMG(IMG_INIT_PNG | IMG_INIT_JPG))
     {
-        std::cout << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
+        std::cerr << "SDL_image failed do initiaize successfully. Is says: " << IMG_GetError() << '\n';
         Quit(true);
         return -1;
     }
 
     if (InitWindow(800, 600))
     {
-        std::cout << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
-        std::cout << "In that case, if you restart the program, all likely shall be well";
+        std::cerr << "Something terrible has just happened! Maybe the rules of universe changed exactry so that SDL library is no longer working, but more likely some bytes in the Window object failed to arrange themselves as the Programmer wanted.\n";
+        std::cerr << "In that case, if you restart the program, all likely shall be well";
         Quit();
         return -3;
     }
