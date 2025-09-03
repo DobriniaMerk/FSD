@@ -3,7 +3,6 @@
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 
 
 void libzpaq::error(const char *msg) // print error message and exit
@@ -82,13 +81,15 @@ std::string getImageFile()
     return result;
 }
 
-std::string saveFile(std::string defaultPath = "") {
+char const* saveFile(char const* defaultpath = nullptr, char const** filterpatterns = nullptr, char const* filterdescr = nullptr) {
     char const* title = "Save file";
     int patternNum = 1;
-    char const* filterPatterns[1] = {"*.fsd"};
-    char const* filterDescr = "FSD images";
+    char const* defaultPath = defaultpath ? defaultpath : "";
+    char const* t = "*.fsd";
+    char const** filterPatterns = filterpatterns ? filterpatterns : &t;
+    char const* filterDescr = filterdescr ? filterdescr : "FSD images";
 
-    char *result = tinyfd_saveFileDialog(title, defaultPath.data(), patternNum,
+    char *result = tinyfd_saveFileDialog(title, defaultPath, patternNum,
                                          filterPatterns, filterDescr);
     if (result == NULL) {
         // user canceled

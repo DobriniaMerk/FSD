@@ -1,7 +1,6 @@
 #pragma once
-/* #include "Includes.h" */
-/* #include <atlstr.h> */
+#include <string>
 
 std::string getImageFile();
-std::string saveFile(std::string extention = ".FSD");
+char const* saveFile(char const* defaultpath = nullptr, char const** filterpatterns = nullptr, char const* filterdescr = nullptr);
 void compress(std::string source, std::string dest);

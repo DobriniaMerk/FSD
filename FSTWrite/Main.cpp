@@ -7,6 +7,7 @@
 #include <SDL_image.h>
 #include <cstddef>
 #include <iostream>
+#include <vector>
 
 char tempfile[200];
 
@@ -224,14 +225,16 @@ int main(int argc, char** argv)
                     {
                         if (ImGui::MenuItem("png"))
                         {
-                            std::string path = saveFile(".png");
-                            IMG_SavePNG(drawImage, path.c_str());
+                            char const* filter[1] = {".png"};
+                            char const* path = saveFile(nullptr, filter, "PNG images");
+                            IMG_SavePNG(drawImage, path);
                         }
                         if (ImGui::MenuItem("jpg"))
                         {
-                            std::string path = saveFile(".jpg");
+                            char const* filter[2] = {".jpg", ".jpeg"};
+                            char const* path = saveFile(nullptr, filter, "JPEG images");
                             int quality = 88;
-                            IMG_SaveJPG(drawImage, path.c_str(), quality);
+                            IMG_SaveJPG(drawImage, path, quality);
                         }
                         ImGui::EndMenu();
                     }
