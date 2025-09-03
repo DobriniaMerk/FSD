@@ -1,75 +1,14 @@
 #include <SDL.h>
-#include <string>
 #include <vector>
+#include <string>
 
-
-// operators
-SDL_Color operator /(SDL_Color self, float n);
-SDL_Color operator *(SDL_Color self, float n);
-SDL_Color operator +(SDL_Color a, SDL_Color b);
-bool operator ==(SDL_Color a, SDL_Color b);
-// operators
-
-
-// inner methods
-
-std::vector<std::vector<float>> toColorVector(std::vector<SDL_Color> in);
-std::vector<SDL_Color> fromColorVector(std::vector<std::vector<float>> in);
-void set_pixel(SDL_Surface* surface, int x, int y, Uint32 pixel);
-SDL_Color get_pixel(SDL_Surface* surface, int x, int y);
-int clamp(int val, int min = 0, int max = 255);
-float DistanceTo(SDL_Color self, SDL_Color other);
-std::vector<SDL_Color> SampleColors(SDL_Surface* img, int skip = 10);
-
-/// <summary>
-/// Quatization by median cut
-/// </summary>
-/// <param name="img">Source image</param>
-/// <param name="colorNum">Number of colors to return; Must be a power of two</param>
-/// <returns>Array of Color[colorNum]</returns>
-std::vector <SDL_Color> QuantizeMedian(SDL_Surface* img, int colorNum);
-
-/// <summary>
-/// Splits "colors" array in halves by maximum color channel
-/// </summary>
-/// <param name="colors">Colors to split</param>
-/// <returns></returns>
-std::vector<std::vector<SDL_Color> > QuantizeMedianSplit(std::vector<SDL_Color> _colors);
-
-
-/// <summary>
-/// Point initialization as in k-means++ method
-/// </summary>
-/// <param name="img">Source image</param>
-/// <param name="colorNum">Number of colors to return</param>
-/// <returns>Array of Color[colorNum]</returns>
-std::vector <SDL_Color> QuantizeWeightedRandom(SDL_Surface* img, int colorNum, bool take_root = true);
-
-/// Searchs nearest but not farther than maxDist color to color in search array
-/// <param name="color">Base color</param>
-/// <param name="search">Array for searching in</param>
-/// <param name="maxDist">Maximum distance of nearest color</param>
-/// <returns>Color</returns>
-int GetNearest(SDL_Color color, std::vector<SDL_Color> search, int maxDist);
-
-/// Adds debug squares at the bottom of the image (you should not need this if all goes well)
-SDL_Surface* AddDebug(SDL_Surface* image, std::vector<SDL_Color> colors);
-
-// inner methods
-
-
-// for public use
+/// Color quantization by k-means clustering
+/// init_type - 0: Median split; 1: k-means++
+std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum, int init_type, int max_steps = 100);
 
 /// Draws image with suppied colors.
 /// Important: This method rewrites the image, not returns a copy.
-void Dither(SDL_Surface* image, std::vector<std::vector<float>> colors);
-
-/// Color quantization by k-means clustering
-/// <param name="img">Sourse image to take colors out</param>
-/// <param name="colorNum">Number of colors to return</param>
-/// <param name="init_type">0: Median split; 1: k-means++</param>
-/// <returns></returns>
-std::vector<std::vector<float>> Quantize(SDL_Surface* img, int colorNum, int init_type);
+void Dither(SDL_Surface* img, const std::vector<std::vector<float>>& cls);
 
 /// Save image in a FSD format to provided path, additionally compressing it with zpaq.
-void SaveToFile(SDL_Surface* img, std::vector<std::vector<float>> colors, std::string filename);
+void SaveToFile(SDL_Surface* img, const std::vector<std::vector<float>>& cls, const std::string& filename);
