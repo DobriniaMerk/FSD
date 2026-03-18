@@ -22,5 +22,8 @@ Regular JPEG image with default quality setting of 90, wheighting 216 KB. <br> I
 
 ## Compiling
 
-I havent tried compiling this project with anything other than Visual Studio, and for it, the compilation is simple.
-Everything needed for the project is already in the repository, so all you need is to include SDL folders in linker settings, if they are not set up already, and then compile the binaries.
+```bash
+mkdir build && cd build
+cmake ..
+make
+```
